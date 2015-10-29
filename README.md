@@ -69,7 +69,7 @@ Let's say you want to have a webhook that get's called every time your User mode
 
 The event that get's called from Laravel will be:
 
-`eloquent:updated \App\User`
+`eloquent.updated \App\User`
 
 So this will be the event you want to listen for.
 
