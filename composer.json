@@ -2,7 +2,7 @@
     "name": "mpociot/captainhook",
     "license": "MIT",
     "description": "Add webhooks to your Laravel app.",
-    "keywords": ["webhooks", "laravel", "hook", "events"],
+    "keywords": ["webhooks","webhook", "laravel", "hook", "events"],
     "homepage": "http://github.com/mpociot/captainhook",
     "authors": [
         {

@@ -1,22 +1,18 @@
-# Versionable
-## Easy to use Model versioning for Laravel 4 and Laravel 5
+<img src="http://www.marcelpociot.com/git/hook.png" style="width: 100%" alt="Captain Hook" />
+# Captain Hook
+## Add Webhooks to your Laravel app, arrr
 
-![image](http://img.shields.io/packagist/v/mpociot/versionable.svg?style=flat)
-![image](http://img.shields.io/packagist/l/mpociot/versionable.svg?style=flat)
-![image](http://img.shields.io/packagist/dt/mpociot/versionable.svg?style=flat)
-[![codecov.io](https://codecov.io/github/mpociot/versionable/coverage.svg?branch=master)](https://codecov.io/github/mpociot/versionable?branch=master)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/mpociot/versionable/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/mpociot/versionable/?branch=master)
-[![Build Status](https://travis-ci.org/mpociot/versionable.svg?branch=master)](https://travis-ci.org/mpociot/versionable)
+![image](http://img.shields.io/packagist/v/mpociot/captainhook.svg?style=flat)
+![image](http://img.shields.io/packagist/l/mpociot/captainhook.svg?style=flat)
+[![codecov.io](https://codecov.io/github/mpociot/captainhook/coverage.svg?branch=master)](https://codecov.io/github/mpociot/captainhook?branch=master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/mpociot/captainhook/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/mpociot/captainhook/?branch=master)
+[![Build Status](https://travis-ci.org/mpociot/captainhook.svg?branch=master)](https://travis-ci.org/mpociot/captainhook)
 
-Keep track of all your model changes and revert to previous versions of it.
+Implement multiple webhooks into your Laravel app using the Laravel Event system.
 
 
-```php
-// Restore to the previous change
-$content->previousVersion()->revert();
-
-// Get model from a version
-$oldModel = Version::find(100)->getModel();
+```bash
+php artisan hook:add http://www.myapp.com/hooks/ '\App\Events\PodcastWasPurchased'
 ```
 
 
@@ -25,128 +21,131 @@ $oldModel = Version::find(100)->getModel();
 - [Installation](#installation)
 - [Implementation](#implementation)
 - [Usage](#usage)
-    - [Exclude attributes from versioning](#exclude)
-    - [Retrieving all versions associated to a model](#retrieve)
-    - [Getting a diff of two versions](#diff)
-    - [Revert to a previous version](#revert)
-- [FAQ](#faq) 
+    - [Custom event listeners](#listeners)
+    - [Add new webhooks](#add)
+    - [Delete existing webhooks](#delete)
+    - [List all active webhooks](#list)
+    - [Receiving a webhook notification](#webhook)
 - [License](#license) 
 
 <a name="installation" />
 ## Installation
 
-In order to add Versionable to your project, just add 
+In order to add CaptainHook to your project, just add 
 
-    "mpociot/versionable": "~2.0"
+    "mpociot/captainhook": "~1.0"
 
 to your composer.json. Then run `composer install` or `composer update`.
 
-Or run `composer require mpociot/versionable ` if you prefere that.
+Or run `composer require mpociot/captainhook ` if you prefere that.
 
-Run the migrations to create the "versions" table that will hold all version information.
+Then in your `config/app.php` add 
+
+    Mpociot\CaptainHook\CaptainHookServiceProvider::class
+    
+to the `providers` array.
+
+
+Publish and run the migration to create the "webhooks" table that will hold all installed webhooks.
 
 ```bash
-php artisan migrate --path=vendor/mpociot/versionable/src/migrations
+php artisan vendor:publish --provider="Mpociot\CaptainHook\CaptainHookServiceProvider"
+
+php artisan migrate
 ```
 
 <a name="usage" />
 ## Usage
 
-Let the Models you want to set under version control use the `VersionableTrait`.
+The CaptainHook service provider listens for every `eloquent.*` events.
+
+If the package finds a configured webhook for an event, it will make a `POST` request to the specified URL.
+
+Webhook data is sent as JSON in the POST request body. The full event object is included and can be used directly, after parsing the JSON body.
+
+**Example**
+
+Let's say you want to have a webhook that get's called every time your User model get's updated.
+
+The event that get's called from Laravel will be:
+
+`eloquent:updated \App\User`
+
+So this will be the event you want to listen for.
+
+<a name="add" />
+### Add new webhooks
+
+If you know which event you want to listen to, you can add a new webhook by using the `hook:add` artisan command.
+
+This command takes two arguments:
+
+- The webhook URL that will receive the POST requests
+- The event name. This could either be one of the `eloquent.*` events, or one of your custom events.
+
+```bash
+php artisan hook:add http://www.myapp.com/hook/ 'eloquent.saved \App\User'
+```
+
+You can also add multiple webhooks for the same event, as all configured webhooks will get calles asynchronous.
+
+<a name="delete" />
+### Delete existing webhooks
+
+To remove an existing webhook from the system, use the `hook:delete` command. This command takes the webhook ID as an argument.
+
+```bash
+php artisan hook:delete 2
+```
+
+<a name="list" />
+### List all active webhooks
+
+To list all existing webhooks, use the `hook:list` command.
+
+It will output all configured webhooks in a table.
+
+<a name="listeners" />
+### Custom event listeners
+
+If you want CaptainHook to listen for custom events, you need to override the `CaptainHookServiceProvider`.
+
+All listeners are defined in a protected array inside the service provider.
 
 ```php
-class Content extends Model {
-	
-	use Mpociot\Versionable\VersionableTrait;
-	
+
+class CustomCaptainHookServiceProvider extends CaptainHookServiceProvider
+{
+
+    /**
+     * The registered event listeners.
+     *
+     * @var array
+     */
+    protected $listeners = ["eloquent.*", "\\App\\Events\\MyCustomEvent"];
+
 }
 ```
-That's it!
 
-Every time you update your model, a new version containing the previous attributes will be stores in your database. 
+If you extend the original `CaptainHookServiceProvider` be sure to replace your custom service provider with the package provider in your `config/app.php`.
 
-All timestamps and the possible soft-delete timestamp will be ignored.
 
-<a name="exclude" />
-### Exclude attributes from versioning
+<a name="webhook" />
+### Receiving a webhook notification
 
-Sometimes you don't want to create a version *every* time an attribute on your model changes. For example your User model might have a `last_login_at` attribute. 
-I'm pretty sure you don't want to create a new version of your User model every time that user logs in.
-
-To exclude specific attributes from versioning, add a new array property to your model named `dontVersionFields`.
+To receive the event data in your configured webhook, use:
 
 ```php
-class User extends Model {
-	
-	use Mpociot\Versionable\VersionableTrait;
-	
-	/**
-	 * @var array
-	 */
-	protected $dontVersionFields = [ 'last_login_at' ];
+// Retrieve the request's body and parse it as JSON
+$input = @file_get_contents("php://input");
+$event_json = json_decode($input);
 
-}
+// Do something with $event_json
 ```
-
-<a name="retrieve" />
-### Retrieving all versions associated to a model
-
-To retrieve all stored versions use the `versions` attribute on your model.
-
-This attribute can also be accessed like any other Laravel relation, since it is a `MorphMany` relation.
-
-```php
-$model->versions;
-```
-
-<a name="diff" />
-### Getting a diff of two versions
-
-If you want to know, what exactly has changed between two versions, use the version model's `diff` method.
-
-The diff method takes a version model as an argument. This defines the version to diff against. If no version is provided, it will use the current version.
-
-```php
-/**
- * Create a diff against the current version
- */
-$diff = $page->previousVersion()->diff();
-
-
-/**
- * Create a diff against a specific version
- */
-$diff = $page->currentVersion()->diff( $version );
-```
-
-The result will be an associative array containing the attribute name as the key, and the different attribute value.
-
-<a name="revert" />
-### Revert to a previous version
-
-Saving versions is pretty cool, but the real benefit will be the ability to revert to a specific version.
-
-There are multiple ways to do this.
-
-**Revert to the previous version**
-
-You can easiliy revert to the version prior to the currently active version using:
-
-```php
-$content->previousVersion()->revert();
-```
-
-**Revert to a specific version ID**
-
-You can also revert to a specific version ID of a model using:
-
-```php
-$revertedModel = Version::find( $version_id )->revert();
-```
-
-
 
 <a name="license" />
 ## License
 
-Versionable is free software distributed under the terms of the MIT license.
+CaptainHook is free software distributed under the terms of the MIT license.
+
+'Day 02: Table, Lamp & Treasure Map' image licensed under [Creative Commons 2.0](https://creativecommons.org/licenses/by/2.0/) - Photo from [stevedave](https://www.flickr.com/photos/stevedave/4153323914) 
