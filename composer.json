@@ -30,8 +30,5 @@
         "psr-0": {
             "Mpociot\\CaptainHook": "src/"
         }
-    },
-    "scripts": {
-        "test": "phpunit"
     }
 }
