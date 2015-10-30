@@ -35,7 +35,7 @@ class ListWebhooks extends Command
      */
     public function handle()
     {
-        $all = Webhook::select('id', 'url', 'event')->get();
-        $this->table(['id', 'url', 'event'], $all->toArray());
+        $all = Webhook::select('id', 'tenant_id', 'url', 'event')->get();
+        $this->table(['id', 'tenant_id', 'url', 'event'], $all->toArray());
     }
 }

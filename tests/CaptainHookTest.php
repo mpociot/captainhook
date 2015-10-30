@@ -24,6 +24,7 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
     public function tearDown()
     {
         \Cache::forget( Webhook::CACHE_KEY );
+        m::close();
     }
 
     /**
@@ -163,6 +164,53 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
         $provider = $this->app->getProvider("Mpociot\\CaptainHook\\CaptainHookServiceProvider");
         $provider->setClient( $client );
+
+        $obj = new TestModel();
+        $obj->name = "Test";
+        $obj->save();
+
+    }
+
+    public function testCanFilterWebhooks()
+    {
+        $webhook = new Webhook();
+        $webhook->tenant_id = 1;
+        $webhook->url = "http://test.foo/saved";
+        $webhook->event = "eloquent.saved: TestModel";
+        $webhook->save();
+
+        $webhook = new Webhook();
+        $webhook->tenant_id = 2;
+        $webhook->url = "http://test.bar/saved";
+        $webhook->event = "eloquent.saved: TestModel";
+        $webhook->save();
+
+        $webhook = new Webhook();
+        $webhook->tenant_id = 3;
+        $webhook->url = "http://test.baz/saved";
+        $webhook->event = "eloquent.saved: TestModel";
+        $webhook->save();
+
+
+        $client = m::mock("GuzzleHttp\\Client");
+
+        $client->shouldReceive("postAsync")
+            ->once();
+
+        $client->shouldReceive("postAsync")
+            ->with( "http://test.bar/saved",  m::any() );
+
+        $config = m::mock("stdClass");
+        $config->shouldReceive("get")
+            ->with("captain_hook.filter", null)
+            ->andReturn(function($item){
+                return $item->tenant_id == 2;
+            });
+
+        $provider = $this->app->getProvider("Mpociot\\CaptainHook\\CaptainHookServiceProvider");
+        $provider->setClient( $client );
+        $provider->setConfig( $config );
+
 
         $obj = new TestModel();
         $obj->name = "Test";

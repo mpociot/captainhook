@@ -26,6 +26,7 @@ php artisan hook:add http://www.myapp.com/hooks/ '\App\Events\PodcastWasPurchase
     - [Delete existing webhooks](#delete)
     - [List all active webhooks](#list)
     - [Receiving a webhook notification](#webhook)
+    - [Using webhooks with multi tenancy](#tenant)
 - [License](#license) 
 
 <a name="installation" />
@@ -141,6 +142,40 @@ $input = @file_get_contents("php://input");
 $event_json = json_decode($input);
 
 // Do something with $event_json
+```
+
+
+<a name="tenant" />
+### Using webhooks with multi tenancy
+
+Sometimes you don't want to use system wide webhooks, but rather want them scoped to a specific "tenant".
+This could be bound to a user or a team.
+
+The webhook table has a field `tenant_id` for this purpose. 
+So if you want your users to be able to add their own webhooks, you won't use the artisan commands to add webhooks to the database,
+but add them on your own.
+
+To add a webhook that is scoped to the current user, you could do for example:
+
+```php
+Webhook::create([
+    "url" => Input::get("url"),
+    "event" => "\\App\\Events\\MyEvent",
+    "tenant_id" => Auth::id()
+]);
+```
+
+Now when you fire this event - you want to call the webhook only for the currently logged in user.
+
+In order to filter the webhooks, modify the `filter` configuration value in the `config/captain_hook.php` file.
+This filter is a Laravel collection filter.
+ 
+To return only the webhooks for the currently logged in user, it might look like this:
+
+```php
+'filter' => function( $webhook ){
+    return $webhook->tenant_id == Auth::id();
+},
 ```
 
 <a name="license" />

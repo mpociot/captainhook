@@ -38,13 +38,20 @@ class CaptainHookServiceProvider extends ServiceProvider
     protected $cache;
 
     /**
+     * @var \Illuminate\Contracts\Config\Repository
+     */
+    protected $config;
+
+    /**
      * Bootstrap
      */
     public function boot()
     {
         $this->client = new Client();
         $this->cache  = app('Illuminate\Contracts\Cache\Repository');
+        $this->config = app('Illuminate\Contracts\Config\Repository');
         $this->publishMigration();
+        $this->publishConfig();
     }
 
     /**
@@ -69,6 +76,16 @@ class CaptainHookServiceProvider extends ServiceProvider
                 __DIR__ . '/../../database/2015_10_29_000000_captain_hook_setup_table.php' => database_path('/migrations/' . date('Y_m_d_His') . '_captain_hook_setup_table.php'),
             ], 'migrations');
         }
+    }
+
+    /**
+     * Publish configuration file
+     */
+    protected function publishConfig()
+    {
+        $this->publishes([
+            __DIR__.'/../../config/config.php'           => config_path('captain_hook.php'),
+        ]);
     }
 
     /**
@@ -140,22 +157,32 @@ class CaptainHookServiceProvider extends ServiceProvider
     }
 
     /**
+     * @param \Illuminate\Contracts\Config\Repository $config
+     */
+    public function setConfig($config)
+    {
+        $this->config = $config;
+    }
+
+    /**
      * Event listener.
+     *
      * @param $eventData
      */
     public function handleEvent($eventData)
     {
         $eventName = Event::firing();
-        $webhooks  = $this->getWebhooks();
+        $webhooks  = $this->getWebhooks()->where("event", $eventName);
+        $webhooks  = $webhooks->filter($this->config->get("captain_hook.filter", null));
 
-        $this->callWebhooks($webhooks->where("event", $eventName), $eventData);
+        $this->callWebhooks($webhooks, $eventData);
     }
 
     /**
      * Call all webhooks asynchronous
      *
      * @param array $webhooks
-     * @param $eventData
+     * @param       $eventData
      */
     private function callWebhooks($webhooks, $eventData)
     {

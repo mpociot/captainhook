@@ -16,6 +16,7 @@ class CaptainHookSetupTable extends Migration
 
         Schema::create("webhooks", function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('tenant_id')->nullable();
             $table->string('url');
             $table->string('event');
             $table->timestamps();
