@@ -13,6 +13,7 @@ Implement multiple webhooks into your Laravel app using the Laravel Event system
 
 ```bash
 php artisan hook:add http://www.myapp.com/hooks/ '\App\Events\PodcastWasPurchased'
+php artisan hook:add http://www.myapp.com/hooks/ 'eloquent.saved \App\User'
 ```
 
 
