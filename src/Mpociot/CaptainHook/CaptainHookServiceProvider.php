@@ -4,6 +4,9 @@ use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use Mpociot\CaptainHook\Commands\AddWebhook;
+use Mpociot\CaptainHook\Commands\DeleteWebhook;
+use Mpociot\CaptainHook\Commands\ListWebhooks;
 
 /**
  * This file is part of CaptainHook arrrrr
@@ -213,15 +216,15 @@ class CaptainHookServiceProvider extends ServiceProvider
     protected function registerCommands()
     {
         $this->app[ 'hook.list' ] = $this->app->share(function () {
-            return new Commands\ListWebhooks();
+            return new ListWebhooks();
         });
 
         $this->app[ 'hook.add' ] = $this->app->share(function () {
-            return new Commands\AddWebhook();
+            return new AddWebhook();
         });
 
         $this->app[ 'hook.delete' ] = $this->app->share(function () {
-            return new Commands\DeleteWebhook();
+            return new DeleteWebhook();
         });
 
         $this->commands(
