@@ -23,7 +23,7 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
     public function tearDown()
     {
-        \Cache::forget( Webhook::CACHE_KEY );
+        \Cache::forget(Webhook::CACHE_KEY);
         m::close();
     }
 
@@ -72,12 +72,12 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
             ->twice();
 
         $client->shouldReceive("postAsync")
-            ->with( "http://foo.baz/hook", m::any() );
+            ->with("http://foo.baz/hook", m::any());
 
         $client->shouldReceive("postAsync")
-            ->with( "http://foo.bar/hook", m::any() );
+            ->with("http://foo.bar/hook", m::any());
 
-        $provider->setClient( $client );
+        $provider->setClient($client);
 
         // Trigger eloquent event
         $obj = new TestModel();
@@ -105,12 +105,12 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
         $client->shouldReceive("postAsync")
             ->once()
-            ->with( "http://foo.bar/hook",  ['body' => json_encode(["testModel" => $model]), 'verify' => false] );
+            ->with("http://foo.bar/hook",  ['body' => json_encode(["testModel" => $model]), 'verify' => false]);
 
-        $provider->setClient( $client );
+        $provider->setClient($client);
 
         // Trigger eloquent event
-        \Event::fire( new TestEvent( $model ) );
+        \Event::fire(new TestEvent($model));
     }
 
     public function testUsesWebhooksFromCache()
@@ -126,11 +126,10 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
         $webhook->save();
 
         $provider = $this->app->getProvider("Mpociot\\CaptainHook\\CaptainHookServiceProvider");
-        $this->assertCount( 2, $provider->getWebhooks() );
+        $this->assertCount(2, $provider->getWebhooks());
 
-        $this->assertTrue( Cache::has( Webhook::CACHE_KEY ) );
-        $this->assertCount( 2, Cache::get( Webhook::CACHE_KEY ) );
-
+        $this->assertTrue(Cache::has(Webhook::CACHE_KEY));
+        $this->assertCount(2, Cache::get(Webhook::CACHE_KEY));
     }
 
     public function testUsesWebhooksFromDatabase()
@@ -157,18 +156,17 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
             ->twice();
 
         $client->shouldReceive("postAsync")
-            ->with( "http://test.foo/saved",  m::any() );
+            ->with("http://test.foo/saved",  m::any());
 
         $client->shouldReceive("postAsync")
-            ->with( "http://test.bar/saved",  m::any() );
+            ->with("http://test.bar/saved",  m::any());
 
         $provider = $this->app->getProvider("Mpociot\\CaptainHook\\CaptainHookServiceProvider");
-        $provider->setClient( $client );
+        $provider->setClient($client);
 
         $obj = new TestModel();
         $obj->name = "Test";
         $obj->save();
-
     }
 
     public function testCanFilterWebhooks()
@@ -198,30 +196,28 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
             ->once();
 
         $client->shouldReceive("postAsync")
-            ->with( "http://test.bar/saved",  m::any() );
+            ->with("http://test.bar/saved",  m::any());
 
         $config = m::mock("stdClass");
         $config->shouldReceive("get")
             ->with("captain_hook.filter", null)
-            ->andReturn(function($item){
+            ->andReturn(function ($item) {
                 return $item->tenant_id == 2;
             });
 
         $provider = $this->app->getProvider("Mpociot\\CaptainHook\\CaptainHookServiceProvider");
-        $provider->setClient( $client );
-        $provider->setConfig( $config );
+        $provider->setClient($client);
+        $provider->setConfig($config);
 
 
         $obj = new TestModel();
         $obj->name = "Test";
         $obj->save();
-
     }
 }
 
 class TestModel extends \Illuminate\Database\Eloquent\Model
 {
-
 }
 
 class TestEvent extends \Illuminate\Support\Facades\Event

@@ -16,7 +16,6 @@ use Mpociot\CaptainHook\Commands\ListWebhooks;
  */
 class CaptainHookServiceProvider extends ServiceProvider
 {
-
     /**
      * The registered event listeners.
      *
@@ -233,6 +232,4 @@ class CaptainHookServiceProvider extends ServiceProvider
             'hook.delete'
         );
     }
-
-
 }

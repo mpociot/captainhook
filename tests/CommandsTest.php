@@ -4,7 +4,6 @@ use Mockery as m;
 
 class CommandsTest extends Orchestra\Testbench\TestCase
 {
-
     public function setUp()
     {
         parent::setUp();
@@ -21,7 +20,7 @@ class CommandsTest extends Orchestra\Testbench\TestCase
 
         $cmd->shouldReceive("error")
             ->once()
-            ->with( m::type("string") );
+            ->with(m::type("string"));
 
         $cmd->shouldReceive("argument")
             ->twice();
@@ -48,12 +47,12 @@ class CommandsTest extends Orchestra\Testbench\TestCase
             ->andReturn("TestModelTestModel");
 
         $cmd->shouldReceive("info")
-            ->with( m::type("string") );
+            ->with(m::type("string"));
 
         $cmd->handle();
 
 
-        $this->seeInDatabase("webhooks",[
+        $this->seeInDatabase("webhooks", [
             "event" => "TestModelTestModel",
             "url" => "http://foo.bar",
         ]);
@@ -69,15 +68,15 @@ class CommandsTest extends Orchestra\Testbench\TestCase
 
         $cmd->shouldReceive("argument")
             ->with("id")
-            ->andReturn( null );
+            ->andReturn(null);
 
         $cmd->shouldReceive("error")
-            ->with( m::type("string") );
+            ->with(m::type("string"));
 
         $cmd->handle();
 
 
-        $this->seeInDatabase("webhooks",[
+        $this->seeInDatabase("webhooks", [
             "url" => "http://foo.baz",
             "event" => "DeleteWebhook",
         ]);
@@ -93,15 +92,15 @@ class CommandsTest extends Orchestra\Testbench\TestCase
 
         $cmd->shouldReceive("argument")
             ->with("id")
-            ->andReturn( $webhook->getKey() );
+            ->andReturn($webhook->getKey());
 
         $cmd->shouldReceive("info")
-            ->with( m::type("string") );
+            ->with(m::type("string"));
 
         $cmd->handle();
 
 
-        $this->notSeeInDatabase("webhooks",[
+        $this->notSeeInDatabase("webhooks", [
             "url" => "http://foo.baz",
             "event" => "DeleteWebhook",
         ]);
