@@ -48,64 +48,64 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
     public function testEloquentEventListenerGetCalled()
     {
-        $provider = $this->app->getProvider("Mpociot\\CaptainHook\\CaptainHookServiceProvider");
+        $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
         $provider->setWebhooks([
             [
-                "event" => "eloquent.saved: TestModel",
-                "url"   => "http://foo.baz/hook"
+                'event' => 'eloquent.saved: TestModel',
+                'url' => 'http://foo.baz/hook'
             ],
             [
-                "event" => "eloquent.saved: TestModel",
-                "url"   => "http://foo.bar/hook"
+                'event' => 'eloquent.saved: TestModel',
+                'url' => 'http://foo.bar/hook'
             ],
             [
-                "event" => "eloquent.deleted: TestModel",
-                "url"   => "http://foo.baz/foo"
+                'event' => 'eloquent.deleted: TestModel',
+                'url' => 'http://foo.baz/foo'
             ]
         ]);
 
 
 
-        $client = m::mock("GuzzleHttp\\Client");
+        $client = m::mock('GuzzleHttp\\Client');
 
-        $client->shouldReceive("postAsync")
+        $client->shouldReceive('postAsync')
             ->twice();
 
-        $client->shouldReceive("postAsync")
-            ->with("http://foo.baz/hook", m::any());
+        $client->shouldReceive('postAsync')
+            ->with('http://foo.baz/hook', m::any());
 
-        $client->shouldReceive("postAsync")
-            ->with("http://foo.bar/hook", m::any());
+        $client->shouldReceive('postAsync')
+            ->with('http://foo.bar/hook', m::any());
 
         $provider->setClient($client);
 
         // Trigger eloquent event
         $obj = new TestModel();
-        $obj->name = "Test";
+        $obj->name = 'Test';
         $obj->save();
     }
 
     public function testCustomEventListener()
     {
-        $provider = $this->app->getProvider("Mpociot\\CaptainHook\\CaptainHookServiceProvider");
+        $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
         $provider->setListeners([
-            "TestEvent"
+            'TestEvent'
         ]);
         $provider->setWebhooks([
             [
-                "event" => "TestEvent",
-                "url"   => "http://foo.bar/hook"
+                'event' => 'TestEvent',
+                'url' => 'http://foo.bar/hook'
             ]
         ]);
 
         $model = new TestModel();
-        $model->name = "Test";
+        $model->name = 'Test';
 
-        $client = m::mock("GuzzleHttp\\Client");
+        $client = m::mock('GuzzleHttp\\Client');
 
-        $client->shouldReceive("postAsync")
+        $client->shouldReceive('postAsync')
             ->once()
-            ->with("http://foo.bar/hook", ['body' => json_encode(["testModel" => $model]), 'verify' => false]);
+            ->with('http://foo.bar/hook', ['body' => json_encode(['testModel' => $model]), 'verify' => false]);
 
         $provider->setClient($client);
 
@@ -116,16 +116,16 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
     public function testUsesWebhooksFromCache()
     {
         $webhook = new Webhook();
-        $webhook->url = "http://test.foo/saved";
-        $webhook->event = "eloquent.saved: TestModel";
+        $webhook->url = 'http://test.foo/saved';
+        $webhook->event = 'eloquent.saved: TestModel';
         $webhook->save();
 
         $webhook = new Webhook();
-        $webhook->url = "http://test.foo/deleted";
-        $webhook->event = "eloquent.deleted: TestModel";
+        $webhook->url = 'http://test.foo/deleted';
+        $webhook->event = 'eloquent.deleted: TestModel';
         $webhook->save();
 
-        $provider = $this->app->getProvider("Mpociot\\CaptainHook\\CaptainHookServiceProvider");
+        $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
         $this->assertCount(2, $provider->getWebhooks());
 
         $this->assertTrue(Cache::has(Webhook::CACHE_KEY));
@@ -135,37 +135,37 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
     public function testUsesWebhooksFromDatabase()
     {
         $webhook = new Webhook();
-        $webhook->url = "http://test.foo/saved";
-        $webhook->event = "eloquent.saved: TestModel";
+        $webhook->url = 'http://test.foo/saved';
+        $webhook->event = 'eloquent.saved: TestModel';
         $webhook->save();
 
         $webhook = new Webhook();
-        $webhook->url = "http://test.bar/saved";
-        $webhook->event = "eloquent.saved: TestModel";
+        $webhook->url = 'http://test.bar/saved';
+        $webhook->event = 'eloquent.saved: TestModel';
         $webhook->save();
 
         $webhook = new Webhook();
-        $webhook->url = "http://test.foo/deleted";
-        $webhook->event = "eloquent.deleted: TestModel";
+        $webhook->url = 'http://test.foo/deleted';
+        $webhook->event = 'eloquent.deleted: TestModel';
         $webhook->save();
 
 
-        $client = m::mock("GuzzleHttp\\Client");
+        $client = m::mock('GuzzleHttp\\Client');
 
-        $client->shouldReceive("postAsync")
+        $client->shouldReceive('postAsync')
             ->twice();
 
-        $client->shouldReceive("postAsync")
-            ->with("http://test.foo/saved", m::any());
+        $client->shouldReceive('postAsync')
+            ->with('http://test.foo/saved', m::any());
 
-        $client->shouldReceive("postAsync")
-            ->with("http://test.bar/saved", m::any());
+        $client->shouldReceive('postAsync')
+            ->with('http://test.bar/saved', m::any());
 
-        $provider = $this->app->getProvider("Mpociot\\CaptainHook\\CaptainHookServiceProvider");
+        $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
         $provider->setClient($client);
 
         $obj = new TestModel();
-        $obj->name = "Test";
+        $obj->name = 'Test';
         $obj->save();
     }
 
@@ -173,45 +173,45 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
     {
         $webhook = new Webhook();
         $webhook->tenant_id = 1;
-        $webhook->url = "http://test.foo/saved";
-        $webhook->event = "eloquent.saved: TestModel";
+        $webhook->url = 'http://test.foo/saved';
+        $webhook->event = 'eloquent.saved: TestModel';
         $webhook->save();
 
         $webhook = new Webhook();
         $webhook->tenant_id = 2;
-        $webhook->url = "http://test.bar/saved";
-        $webhook->event = "eloquent.saved: TestModel";
+        $webhook->url = 'http://test.bar/saved';
+        $webhook->event = 'eloquent.saved: TestModel';
         $webhook->save();
 
         $webhook = new Webhook();
         $webhook->tenant_id = 3;
-        $webhook->url = "http://test.baz/saved";
-        $webhook->event = "eloquent.saved: TestModel";
+        $webhook->url = 'http://test.baz/saved';
+        $webhook->event = 'eloquent.saved: TestModel';
         $webhook->save();
 
 
-        $client = m::mock("GuzzleHttp\\Client");
+        $client = m::mock('GuzzleHttp\\Client');
 
-        $client->shouldReceive("postAsync")
+        $client->shouldReceive('postAsync')
             ->once();
 
-        $client->shouldReceive("postAsync")
-            ->with("http://test.bar/saved", m::any());
+        $client->shouldReceive('postAsync')
+            ->with('http://test.bar/saved', m::any());
 
-        $config = m::mock("stdClass");
-        $config->shouldReceive("get")
-            ->with("captain_hook.filter", null)
+        $config = m::mock('stdClass');
+        $config->shouldReceive('get')
+            ->with('captain_hook.filter', null)
             ->andReturn(function ($item) {
                 return $item->tenant_id == 2;
             });
 
-        $provider = $this->app->getProvider("Mpociot\\CaptainHook\\CaptainHookServiceProvider");
+        $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
         $provider->setClient($client);
         $provider->setConfig($config);
 
 
         $obj = new TestModel();
-        $obj->name = "Test";
+        $obj->name = 'Test';
         $obj->save();
     }
 }

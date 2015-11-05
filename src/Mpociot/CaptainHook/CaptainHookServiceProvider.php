@@ -1,4 +1,5 @@
-<?php namespace Mpociot\CaptainHook;
+<?php
+namespace Mpociot\CaptainHook;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
@@ -21,7 +22,7 @@ class CaptainHookServiceProvider extends ServiceProvider
      *
      * @var array
      */
-    protected $listeners = ["eloquent.*"];
+    protected $listeners = ['eloquent.*'];
 
     /**
      * All registered webhooks
@@ -50,7 +51,7 @@ class CaptainHookServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->client = new Client();
-        $this->cache  = app('Illuminate\Contracts\Cache\Repository');
+        $this->cache = app('Illuminate\Contracts\Cache\Repository');
         $this->config = app('Illuminate\Contracts\Config\Repository');
         $this->publishMigration();
         $this->publishConfig();
@@ -86,7 +87,7 @@ class CaptainHookServiceProvider extends ServiceProvider
     protected function publishConfig()
     {
         $this->publishes([
-            __DIR__.'/../../config/config.php'           => config_path('captain_hook.php'),
+            __DIR__.'/../../config/config.php' => config_path('captain_hook.php'),
         ]);
     }
 
@@ -96,7 +97,7 @@ class CaptainHookServiceProvider extends ServiceProvider
     protected function registerEventListeners()
     {
         foreach ($this->listeners as $eventName) {
-            $this->app[ "events" ]->listen($eventName, [$this, "handleEvent"]);
+            $this->app[ 'events' ]->listen($eventName, [$this, 'handleEvent']);
         }
     }
 
@@ -174,8 +175,8 @@ class CaptainHookServiceProvider extends ServiceProvider
     public function handleEvent($eventData)
     {
         $eventName = Event::firing();
-        $webhooks  = $this->getWebhooks()->where("event", $eventName);
-        $webhooks  = $webhooks->filter($this->config->get("captain_hook.filter", null));
+        $webhooks = $this->getWebhooks()->where('event', $eventName);
+        $webhooks = $webhooks->filter($this->config->get('captain_hook.filter', null));
 
         $this->callWebhooks($webhooks, $eventData);
     }
@@ -189,9 +190,9 @@ class CaptainHookServiceProvider extends ServiceProvider
     private function callWebhooks($webhooks, $eventData)
     {
         foreach ($webhooks as $webhook) {
-            $this->client->postAsync($webhook[ "url" ], [
-                "body"   => json_encode($this->createRequestBody($eventData)),
-                "verify" => false
+            $this->client->postAsync($webhook[ 'url' ], [
+                'body' => json_encode($this->createRequestBody($eventData)),
+                'verify' => false
             ]);
         }
     }

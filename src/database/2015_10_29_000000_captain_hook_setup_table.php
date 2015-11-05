@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 class CaptainHookSetupTable extends Migration
 {
@@ -12,7 +12,7 @@ class CaptainHookSetupTable extends Migration
      */
     public function up()
     {
-        Schema::create("webhooks", function (Blueprint $table) {
+        Schema::create('webhooks', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('tenant_id')->nullable();
             $table->string('url');
@@ -28,6 +28,6 @@ class CaptainHookSetupTable extends Migration
      */
     public function down()
     {
-        Schema::drop("webhooks");
+        Schema::drop('webhooks');
     }
 }

@@ -1,7 +1,8 @@
-<?php namespace Mpociot\CaptainHook;
+<?php
+namespace Mpociot\CaptainHook;
 
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * This file is part of CaptainHook arrrrr
@@ -14,7 +15,7 @@ class Webhook extends Eloquent
     /**
      * Cache key to use to store loaded webhooks
      */
-    const CACHE_KEY = "mpociot.captainhook.hooks";
+    const CACHE_KEY = 'mpociot.captainhook.hooks';
 
     /**
      * Make all fields fillable
