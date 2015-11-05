@@ -5,7 +5,6 @@ use Illuminate\Database\Migrations\Migration;
 
 class CaptainHookSetupTable extends Migration
 {
-
     /**
      * Run the migrations.
      *
@@ -13,7 +12,6 @@ class CaptainHookSetupTable extends Migration
      */
     public function up()
     {
-
         Schema::create("webhooks", function (Blueprint $table) {
             $table->increments('id');
             $table->integer('tenant_id')->nullable();
@@ -21,7 +19,6 @@ class CaptainHookSetupTable extends Migration
             $table->string('event');
             $table->timestamps();
         });
-
     }
 
     /**
@@ -31,8 +28,6 @@ class CaptainHookSetupTable extends Migration
      */
     public function down()
     {
-
         Schema::drop("webhooks");
-
     }
 }

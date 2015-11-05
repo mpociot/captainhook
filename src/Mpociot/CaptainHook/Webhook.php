@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Model as Eloquent;
  */
 class Webhook extends Eloquent
 {
-
     /**
      * Cache key to use to store loaded webhooks
      */

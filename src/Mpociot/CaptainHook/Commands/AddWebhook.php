@@ -40,7 +40,5 @@ class AddWebhook extends Command
         } catch (Exception $e) {
             $this->error("The webhook couldn't be added to the database " . $e->getMessage());
         }
-
-
     }
 }

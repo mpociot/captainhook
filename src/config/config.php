@@ -19,7 +19,7 @@ return [
     | The tenant_id field can be used for verification.
     |
     */
-    'filter' => function( $webhook ){
+    'filter' => function ($webhook) {
         return true;
     },
 ];
