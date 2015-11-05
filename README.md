@@ -7,6 +7,7 @@
 [![codecov.io](https://codecov.io/github/mpociot/captainhook/coverage.svg?branch=master)](https://codecov.io/github/mpociot/captainhook?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/mpociot/captainhook/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/mpociot/captainhook/?branch=master)
 [![Build Status](https://travis-ci.org/mpociot/captainhook.svg?branch=master)](https://travis-ci.org/mpociot/captainhook)
+[![StyleCI](https://styleci.io/repos/45216255/shield)](https://styleci.io/repos/45216255)
 
 Implement multiple webhooks into your Laravel app using the Laravel Event system.
 
