@@ -105,7 +105,7 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
         $client->shouldReceive("postAsync")
             ->once()
-            ->with("http://foo.bar/hook",  ['body' => json_encode(["testModel" => $model]), 'verify' => false]);
+            ->with("http://foo.bar/hook", ['body' => json_encode(["testModel" => $model]), 'verify' => false]);
 
         $provider->setClient($client);
 
@@ -156,10 +156,10 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
             ->twice();
 
         $client->shouldReceive("postAsync")
-            ->with("http://test.foo/saved",  m::any());
+            ->with("http://test.foo/saved", m::any());
 
         $client->shouldReceive("postAsync")
-            ->with("http://test.bar/saved",  m::any());
+            ->with("http://test.bar/saved", m::any());
 
         $provider = $this->app->getProvider("Mpociot\\CaptainHook\\CaptainHookServiceProvider");
         $provider->setClient($client);
@@ -196,7 +196,7 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
             ->once();
 
         $client->shouldReceive("postAsync")
-            ->with("http://test.bar/saved",  m::any());
+            ->with("http://test.bar/saved", m::any());
 
         $config = m::mock("stdClass");
         $config->shouldReceive("get")
