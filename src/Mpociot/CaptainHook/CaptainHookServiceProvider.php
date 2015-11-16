@@ -55,6 +55,7 @@ class CaptainHookServiceProvider extends ServiceProvider
         $this->config = app('Illuminate\Contracts\Config\Repository');
         $this->publishMigration();
         $this->publishConfig();
+        $this->registerEventListeners();
     }
 
     /**
@@ -64,7 +65,6 @@ class CaptainHookServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->registerEventListeners();
         $this->registerCommands();
     }
 
