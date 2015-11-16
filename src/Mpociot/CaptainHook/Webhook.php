@@ -21,7 +21,7 @@ class Webhook extends Eloquent
      * Make all fields fillable
      * @var array
      */
-    public $fillable = ['id', 'url', 'event'];
+    public $fillable = ['id', 'url', 'event', 'tenant_id'];
 
 
     /**
