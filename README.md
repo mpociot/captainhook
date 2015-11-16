@@ -48,7 +48,7 @@ In order to add CaptainHook to your project, just add
 
 to your composer.json. Then run `composer install` or `composer update`.
 
-Or run `composer require mpociot/captainhook ` if you prefere that.
+Or run `composer require mpociot/captainhook ` if you prefer that.
 
 Then in your `config/app.php` add 
 
