@@ -105,7 +105,7 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
         $client->shouldReceive('post')
             ->once()
-            ->with('http://foo.bar/hook', ['body' => json_encode(['testModel' => $model]), 'verify' => false]);
+            ->with('http://foo.bar/hook', ['body' => json_encode(['testModel' => $model]), 'verify' => false, 'future' => true]);
 
         $provider->setClient($client);
 
