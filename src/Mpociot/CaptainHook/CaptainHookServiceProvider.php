@@ -190,7 +190,7 @@ class CaptainHookServiceProvider extends ServiceProvider
     private function callWebhooks($webhooks, $eventData)
     {
         foreach ($webhooks as $webhook) {
-            $this->client->post($webhook[ 'url' ], [
+            $this->client->postAsync($webhook[ 'url' ], [
                 'body' => json_encode($this->createRequestBody($eventData)),
                 'verify' => false,
                 'future' => true

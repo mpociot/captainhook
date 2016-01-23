@@ -68,13 +68,13 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
         $client = m::mock('GuzzleHttp\\Client');
 
-        $client->shouldReceive('post')
+        $client->shouldReceive('postAsync')
             ->twice();
 
-        $client->shouldReceive('post')
+        $client->shouldReceive('postAsync')
             ->with('http://foo.baz/hook', m::any());
 
-        $client->shouldReceive('post')
+        $client->shouldReceive('postAsync')
             ->with('http://foo.bar/hook', m::any());
 
         $provider->setClient($client);
@@ -103,7 +103,7 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
         $client = m::mock('GuzzleHttp\\Client');
 
-        $client->shouldReceive('post')
+        $client->shouldReceive('postAsync')
             ->once()
             ->with('http://foo.bar/hook', ['body' => json_encode(['testModel' => $model]), 'verify' => false, 'future' => true]);
 
@@ -152,13 +152,13 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
         $client = m::mock('GuzzleHttp\\Client');
 
-        $client->shouldReceive('post')
+        $client->shouldReceive('postAsync')
             ->twice();
 
-        $client->shouldReceive('post')
+        $client->shouldReceive('postAsync')
             ->with('http://test.foo/saved', m::any());
 
-        $client->shouldReceive('post')
+        $client->shouldReceive('postAsync')
             ->with('http://test.bar/saved', m::any());
 
         $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
@@ -192,10 +192,10 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
         $client = m::mock('GuzzleHttp\\Client');
 
-        $client->shouldReceive('post')
+        $client->shouldReceive('postAsync')
             ->once();
 
-        $client->shouldReceive('post')
+        $client->shouldReceive('postAsync')
             ->with('http://test.bar/saved', m::any());
 
         $config = m::mock('stdClass');
