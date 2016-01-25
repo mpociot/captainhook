@@ -23,8 +23,31 @@ return [
         return true;
     },
 
+    /*
+    |--------------------------------------------------------------------------
+    | Webhook data transformer
+    |--------------------------------------------------------------------------
+    |
+    | The data transformer is a simple function that allows you to take the
+    | raw data from the event, and convert it to a format that will then
+    | be posted to the webhooks. By default, all data is json encoded.
+    */
+    'transformer' => function ($eventData) {
+        return json_encode($eventData);
+    },
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Logging configuration
+    |--------------------------------------------------------------------------
+    |
+    | Captain Hook ships with built-in logging to allow you to store data
+    | about the requests that you have made in a certain time interval.
+    | Note that no logging occurs when using the 'sync' Queue driver.
+    */
     'log' => [
         'active' => true,
-        'storage_time' => 24
-    ]
+        'storage_time' => 24,
+    ],
 ];
