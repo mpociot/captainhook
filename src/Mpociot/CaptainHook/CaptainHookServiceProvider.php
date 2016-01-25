@@ -6,8 +6,10 @@ use GuzzleHttp\ClientInterface;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Mpociot\CaptainHook\Commands\AddWebhook;
-use Mpociot\CaptainHook\Commands\DeleteWebhook;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Mpociot\CaptainHook\Commands\ListWebhooks;
+use Mpociot\CaptainHook\Commands\DeleteWebhook;
+use Mpociot\CaptainHook\Jobs\TriggerWebhooksJob;
 
 /**
  * This file is part of CaptainHook arrrrr
@@ -17,6 +19,8 @@ use Mpociot\CaptainHook\Commands\ListWebhooks;
  */
 class CaptainHookServiceProvider extends ServiceProvider
 {
+    use DispatchesJobs;
+
     /**
      * The registered event listeners.
      *
@@ -75,7 +79,7 @@ class CaptainHookServiceProvider extends ServiceProvider
     {
         $migrations = [
             __DIR__ . '/../../database/2015_10_29_000000_captain_hook_setup_table.php' => database_path('/migrations/' . date('Y_m_d_His') . '_captain_hook_setup_table.php'),
-            __DIR__ . '/../../database/2015_10_29_000000_captain_hook_setup_logs.php' => database_path('/migrations/' . date('Y_m_d_His') . '_captain_hook_setup_logs.php'),
+            __DIR__ . '/../../database/2015_10_29_000000_captain_hook_setup_logs_table.php' => database_path('/migrations/' . date('Y_m_d_His') . '_captain_hook_setup_logs.php'),
         ];
 
         foreach ($migrations as $migration => $toPath) {
@@ -186,37 +190,8 @@ class CaptainHookServiceProvider extends ServiceProvider
         $webhooks = $this->getWebhooks()->where('event', $eventName);
         $webhooks = $webhooks->filter($this->config->get('captain_hook.filter', null));
 
-        $this->callWebhooks($webhooks, $eventData);
-    }
-
-    /**
-     * Call all webhooks asynchronous
-     *
-     * @param array $webhooks
-     * @param       $eventData
-     */
-    private function callWebhooks($webhooks, $eventData)
-    {
-        foreach ($webhooks as $webhook) {
-            $this->client->postAsync($webhook[ 'url' ], [
-                'body' => json_encode($this->createRequestBody($eventData)),
-                'verify' => false,
-                'future' => true
-            ]);
-        }
-    }
-
-    /**
-     * Create the request body for the event data.
-     * Override this method if necessary to post different data.
-     *
-     * @param $eventData
-     *
-     * @return array
-     */
-    protected function createRequestBody($eventData)
-    {
-        return $eventData;
+        $transformer = $this->config->get('captain_hook.transformer');
+        $this->dispatch(new TriggerWebhooksJob($webhooks, $transformer($eventData)));
     }
 
     /**
