@@ -22,4 +22,9 @@ return [
     'filter' => function ($webhook) {
         return true;
     },
+
+    'log' => [
+        'active' => true,
+        'storage_time' => 24
+    ]
 ];
