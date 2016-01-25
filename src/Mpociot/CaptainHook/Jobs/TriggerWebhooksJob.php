@@ -73,21 +73,29 @@ class TriggerWebhooksJob implements ShouldQueue
                 'url'            => $webhook[ 'url' ],
             ];
 
-            $middleware = Middleware::tap(function (Request $request) use ($logData) {
-                $logData['payload_format'] = $request->getHeader('Content-Type');
-                $logData['payload'] = $request->getBody();
-            }, function (Response $response) use ($logData) {
-                $logData['status'] = $response->getStatusCode();
-                $logData['response'] = $response->getBody();
-                $logData['response_format'] = $response->getHeader('Content-Type');
+            if ($logging) {
+                $middleware = Middleware::tap(function (Request $request) use ($logData) {
+                    $logData[ 'payload_format' ]  = $request->getHeader('Content-Type');
+                    $logData[ 'payload' ]         = $request->getBody();
+                }, function (Response $response) use ($logData) {
+                    $logData[ 'status' ]          = $response->getStatusCode();
+                    $logData[ 'response' ]        = $response->getBody();
+                    $logData[ 'response_format' ] = $response->getHeader('Content-Type');
 
-                CaptainHookLog::create($logData);
-            });
+                    CaptainHookLog::create($logData);
+                });
 
-            $this->client->post($webhook[ 'url' ], [
-                'body' => $this->eventData,
-                'handler' => $logging ? $middleware : Middleware::httpErrors(),
-            ]);
+                $this->client->post($webhook[ 'url' ], [
+                    'body'    => $this->eventData,
+                    'handler' => $logging ? $middleware : Middleware::httpErrors(),
+                ]);
+            } else {
+                $this->client->postAsync($webhook[ 'uri' ], [
+                    'body'   => $this->eventData,
+                    'verify' => false,
+                    'future' => true,
+                ]);
+            }
         }
     }
 }
