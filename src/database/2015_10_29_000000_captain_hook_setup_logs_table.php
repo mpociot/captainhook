@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CaptainHookSetupTable extends Migration
+class CaptainHookSetupLogsTable extends Migration
 {
     /**
      * Run the migrations.
