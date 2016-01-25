@@ -73,12 +73,20 @@ class CaptainHookServiceProvider extends ServiceProvider
      */
     protected function publishMigration()
     {
-        $published_migration = glob(database_path('/migrations/*_captain_hook_setup_table.php'));
-        if (count($published_migration) === 0) {
-            $this->publishes([
-                __DIR__ . '/../../database/2015_10_29_000000_captain_hook_setup_table.php' => database_path('/migrations/' . date('Y_m_d_His') . '_captain_hook_setup_table.php'),
-            ], 'migrations');
+        $migrations = [
+            __DIR__ . '/../../database/2015_10_29_000000_captain_hook_setup_table.php' => database_path('/migrations/' . date('Y_m_d_His') . '_captain_hook_setup_table.php'),
+            __DIR__ . '/../../database/2015_10_29_000000_captain_hook_setup_logs.php' => database_path('/migrations/' . date('Y_m_d_His') . '_captain_hook_setup_logs.php'),
+        ];
+
+        foreach ($migrations as $migration => $toPath) {
+            preg_match('/_captain_hook_.*\.php/', $migration, $match);
+            $published_migration = glob(database_path('/migrations/*'.$match[0]));
+            if (count($published_migration) !== 0) {
+                unset($migrations[$migration]);
+            }
         }
+
+        $this->publishes($migrations, 'migrations');
     }
 
     /**
