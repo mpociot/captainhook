@@ -12,7 +12,7 @@ class CaptainHookSetupLogsTable extends Migration
      */
     public function up()
     {
-        Schema::create('captain_hook_logs', function (Blueprint $table) {
+        Schema::create('webhook_logs', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('webhook_id')->unsigned()->nullable();
             $table->foreign('webhook_id')->references('id')->on('webhooks')->onDelete('set null');

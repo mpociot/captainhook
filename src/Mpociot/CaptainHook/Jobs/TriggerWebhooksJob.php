@@ -1,7 +1,6 @@
 <?php
 namespace Mpociot\CaptainHook\Jobs;
 
-use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Promise\Promise;
@@ -54,13 +53,14 @@ class TriggerWebhooksJob implements ShouldQueue
         $config = app('Illuminate\Contracts\Config\Repository');
         $client = app(Client::class);
 
-        if (($logging = $config->get('captain_hook.log.active') && $config->get('queue.driver') != 'sync') &&
-            $config->get('captain_hook.log.storage_time') != -1) {
-            WebhookLog::where('updated_at', '<', Carbon::now()->subHours($config->get('captain_hook.log.storage_time')))->delete();
-        }
+        $logging = $config->get('captain_hook.log.active') && $config->get('queue.driver') != 'sync';
 
         foreach ($this->webhooks as $webhook) {
             if ($logging) {
+                if ($config->get('captain_hook.log.storage_quantity') != -1 &&
+                    $webhook->logs()->count() >= $config->get('captain_hook.log.storage_quantity')) {
+                    $webhook->logs()->orderBy('updated_at', 'desc')->first()->delete();
+                }
                 $log = new WebhookLog([
                     'webhook_id' => $webhook[ 'id' ],
                     'url' => $webhook[ 'url' ],

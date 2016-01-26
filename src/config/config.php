@@ -59,6 +59,6 @@ return [
     */
     'log' => [
         'active' => true,
-        'storage_time' => 24,
+        'storage_quantity' => 50,
     ],
 ];
