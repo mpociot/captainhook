@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model as Eloquent;
  * @license MIT
  * @package CaptainHook
  */
-class CaptainHookLog extends Eloquent
+class WebhookLog extends Eloquent
 {
     /**
      * Make the fields fillable.
@@ -17,4 +17,14 @@ class CaptainHookLog extends Eloquent
      * @var array
      */
     protected $fillable = ['webhook_id', 'url', 'payload_format', 'payload', 'status', 'response', 'response_format'];
+
+    /**
+     * Retrieve the webhook described by the log.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function webhook()
+    {
+        return $this->belongsTo(Webhook::class);
+    }
 }

@@ -354,7 +354,7 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
         $webhook->event = 'eloquent.saved: TestModel';
         $webhook->save();
 
-        $log = new \Mpociot\CaptainHook\CaptainHookLog([
+        $log = new \Mpociot\CaptainHook\WebhookLog([
             'webhook_id' => null,
             'url' => 'anything',
             'payload_format' => null,

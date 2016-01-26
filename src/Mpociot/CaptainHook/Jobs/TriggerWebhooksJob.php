@@ -9,7 +9,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Mpociot\CaptainHook\CaptainHookLog;
+use Mpociot\CaptainHook\WebhookLog;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -56,12 +56,12 @@ class TriggerWebhooksJob implements ShouldQueue
 
         if (($logging = $config->get('captain_hook.log.active') && $config->get('queue.driver') != 'sync') &&
             $config->get('captain_hook.log.storage_time') != -1) {
-            CaptainHookLog::where('updated_at', '<', Carbon::now()->subHours($config->get('captain_hook.log.storage_time')))->delete();
+            WebhookLog::where('updated_at', '<', Carbon::now()->subHours($config->get('captain_hook.log.storage_time')))->delete();
         }
 
         foreach ($this->webhooks as $webhook) {
             if ($logging) {
-                $log = new CaptainHookLog([
+                $log = new WebhookLog([
                     'webhook_id' => $webhook[ 'id' ],
                     'url' => $webhook[ 'url' ],
                 ]);
