@@ -46,6 +46,7 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
         $app['config']->set('captain_hook.transformer', function ($eventData) {
             return json_encode($eventData);
         });
+        $app['config']->set('captain_hook.listeners', ['eloquent.*']);
         $app['config']->set('captain_hook.log.active', true);
         $app['config']->set('captain_hook.log.storage_time', 24);
         $app['config']->set('database.default', 'testing');
@@ -342,10 +343,59 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
             'response_format' => 'application/json',
         ]);
     }
+
+    public function testItRemovesOldWebhooks()
+    {
+        $this->app['config']->set('queue.driver', 'notSync');
+        $this->app['config']->set('captain_hook.listeners', ['eloquent.saved: TestModel']);
+
+        $webhook = new Webhook();
+        $webhook->url = 'http://test.foo/saved';
+        $webhook->event = 'eloquent.saved: TestModel';
+        $webhook->save();
+
+        $log = new \Mpociot\CaptainHook\CaptainHookLog([
+            'webhook_id' => null,
+            'url' => 'anything',
+            'payload_format' => null,
+            'payload' => '',
+            'status' => 200,
+            'response' => '',
+            'response_format' => null,
+        ]);
+        $log->created_at = $log->updated_at = date('Y-m-d H:i:s', strtotime('-23 hours'));
+        $log->timestamps = false;
+
+        $log->save();
+
+        $this->seeInDatabase('captain_hook_logs', [
+            'webhook_id' => null,
+            'url' => 'anything',
+            'payload_format' => null,
+            'payload' => '',
+            'status' => 200,
+            'response' => '',
+            'response_format' => null,
+        ]);
+
+        $log->updated_at = date('Y-m-d H:i:s', strtotime('-25 hours'));
+        $log->save();
+
+        $this->dontSeeInDatabase('captain_hook_logs', [
+            'webhook_id' => null,
+            'url' => 'anything',
+            'payload_format' => null,
+            'payload' => '',
+            'status' => 200,
+            'response' => '',
+            'response_format' => null,
+        ]);
+    }
 }
 
 class TestModel extends \Illuminate\Database\Eloquent\Model
 {
+    protected $fillable = ['name'];
 }
 
 class TestEvent extends \Illuminate\Support\Facades\Event
