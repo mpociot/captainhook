@@ -263,10 +263,9 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
         $client = m::mock('GuzzleHttp\\Client');
 
-        $client->shouldReceive('post')
-            ->twice();
-
-        $client = m::mock('GuzzleHttp\\Client');
+        $client->shouldReceive('getConfig')
+            ->with('handler')
+            ->andReturn(\GuzzleHttp\Middleware::httpErrors());
 
         $client->shouldReceive('post')
             ->twice();
@@ -280,10 +279,68 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
         $this->app->instance(GuzzleHttp\Client::class, $client);
 
         $provider->setClient($client);
+        $provider->setWebhooks(Webhook::all());
 
         $obj = new TestModel();
         $obj->name = 'Test';
         $obj->save();
+    }
+
+    public function testItLogsTriggeredWebhooks()
+    {
+        $this->app['config']->set('queue.driver', 'notSync');
+
+        $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
+
+        $webhook = new Webhook();
+        $webhook->url = 'http://test.foo/saved';
+        $webhook->event = 'eloquent.saved: TestModel';
+        $webhook->save();
+
+        $webhook = new Webhook();
+        $webhook->url = 'http://test.bar/saved';
+        $webhook->event = 'eloquent.saved: TestModel';
+        $webhook->save();
+
+        $webhook = new Webhook();
+        $webhook->url = 'http://test.foo/deleted';
+        $webhook->event = 'eloquent.deleted: TestModel';
+        $webhook->save();
+
+        $handler = new \GuzzleHttp\Handler\MockHandler([
+            new \GuzzleHttp\Psr7\Response(200, [
+                'Content-Type' => 'application/json',
+            ], '{"data":"First data"}'),
+            new \GuzzleHttp\Psr7\Response(200, [
+                'Content-Type' => 'application/json',
+            ], '{"data":"Second data"}'),
+        ]);
+
+        $handler = \GuzzleHttp\HandlerStack::create($handler);
+
+        $client = new \GuzzleHttp\Client(['handler' => $handler]);
+
+        $this->app->instance(GuzzleHttp\Client::class, $client);
+
+        $provider->setClient($client);
+
+        $test = new TestModel();
+        $test->name = "Test";
+        $test->save();
+
+        $this->seeInDatabase('captain_hook_logs', [
+            'webhook_id' => 1,
+            'url' => 'http://test.foo/saved',
+            'response' => '{"data":"First data"}',
+            'response_format' => 'application/json',
+        ]);
+
+        $this->seeInDatabase('captain_hook_logs', [
+            'webhook_id' => 2,
+            'url' => 'http://test.bar/saved',
+            'response' => '{"data":"Second data"}',
+            'response_format' => 'application/json',
+        ]);
     }
 }
 

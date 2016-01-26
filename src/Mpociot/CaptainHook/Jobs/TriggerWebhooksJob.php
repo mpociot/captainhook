@@ -5,10 +5,11 @@ namespace Mpociot\CaptainHook\Jobs;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Middleware;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Response;
 use Illuminate\Bus\Queueable;
+use GuzzleHttp\Promise\Promise;
+use Psr\Http\Message\RequestInterface;
 use Illuminate\Queue\SerializesModels;
+use Psr\Http\Message\ResponseInterface;
 use Mpociot\CaptainHook\CaptainHookLog;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -58,29 +59,29 @@ class TriggerWebhooksJob implements ShouldQueue
             $config->get('captain_hook.log.storage_time') != -1) {
             CaptainHookLog::where('updated_at', '<', Carbon::now()->subHours($config->get('captain_hook.log.storage_time')))->delete();
         }
-        if ($logging) {
-            dd($this->webhooks);
-        }
+
         foreach ($this->webhooks as $webhook) {
             if ($logging) {
                 $log = new CaptainHookLog([
                     'webhook_id'     => $webhook[ 'id' ],
                     'url'            => $webhook[ 'url' ],
                 ]);
-                $middleware = Middleware::tap(function (Request $request) use ($log) {
-                    $log->payload_format  = $request->getHeader('Content-Type');
-                    $log->payload         = $request->getBody();
-                }, function (Response $response) use ($log) {
-                    $log->status          = $response->getStatusCode();
-                    $log->response        = $response->getBody();
-                    $log->response_format = $response->getHeader('Content-Type');
+                $middleware = Middleware::tap(function (RequestInterface $request, $options) use ($log) {
+                    $log->payload_format  = isset($request->getHeader('Content-Type')[0]) ? $request->getHeader('Content-Type')[0] : null;
+                    $log->payload         = $request->getBody()->getContents();
+                }, function ($request, $options, Promise $response) use ($log) {
+                    $response->then(function (ResponseInterface $response) use ($log) {
+                        $log->status          = $response->getStatusCode();
+                        $log->response        = $response->getBody()->getContents();
+                        $log->response_format = $log->payload_format  = isset($response->getHeader('Content-Type')[0]) ? $response->getHeader('Content-Type')[0] : null;
 
-                    $log->save();
+                        $log->save();
+                    });
                 });
 
                 $client->post($webhook[ 'url' ], [
                     'body'    => $this->eventData,
-                    'handler' => $logging ? $middleware : Middleware::httpErrors(),
+                    'handler' => $middleware($client->getConfig('handler')),
                 ]);
             } else {
                 $client->postAsync($webhook[ 'url' ], [

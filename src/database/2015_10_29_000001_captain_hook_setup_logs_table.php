@@ -17,11 +17,11 @@ class CaptainHookSetupLogsTable extends Migration
             $table->integer('webhook_id')->unsigned()->nullable();
             $table->foreign('webhook_id')->references('id')->on('webhooks')->onDelete('set null');
             $table->string('url');
-            $table->string('payload_format');
+            $table->string('payload_format')->nullable();
             $table->text('payload');
             $table->integer('status');
             $table->text('response');
-            $table->string('response_format');
+            $table->string('response_format')->nullable();
             $table->timestamps();
         });
     }
