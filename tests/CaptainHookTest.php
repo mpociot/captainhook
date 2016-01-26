@@ -326,7 +326,7 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
         $provider->setClient($client);
 
         $test = new TestModel();
-        $test->name = "Test";
+        $test->name = 'Test';
         $test->save();
 
         $this->seeInDatabase('captain_hook_logs', [

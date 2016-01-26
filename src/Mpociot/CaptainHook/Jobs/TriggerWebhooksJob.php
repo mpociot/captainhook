@@ -1,18 +1,17 @@
 <?php
 namespace Mpociot\CaptainHook\Jobs;
 
-
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Middleware;
-use Illuminate\Bus\Queueable;
 use GuzzleHttp\Promise\Promise;
-use Psr\Http\Message\RequestInterface;
-use Illuminate\Queue\SerializesModels;
-use Psr\Http\Message\ResponseInterface;
-use Mpociot\CaptainHook\CaptainHookLog;
-use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Mpociot\CaptainHook\CaptainHookLog;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 class TriggerWebhooksJob implements ShouldQueue
 {
@@ -63,29 +62,29 @@ class TriggerWebhooksJob implements ShouldQueue
         foreach ($this->webhooks as $webhook) {
             if ($logging) {
                 $log = new CaptainHookLog([
-                    'webhook_id'     => $webhook[ 'id' ],
-                    'url'            => $webhook[ 'url' ],
+                    'webhook_id' => $webhook[ 'id' ],
+                    'url' => $webhook[ 'url' ],
                 ]);
                 $middleware = Middleware::tap(function (RequestInterface $request, $options) use ($log) {
-                    $log->payload_format  = isset($request->getHeader('Content-Type')[0]) ? $request->getHeader('Content-Type')[0] : null;
-                    $log->payload         = $request->getBody()->getContents();
+                    $log->payload_format = isset($request->getHeader('Content-Type')[0]) ? $request->getHeader('Content-Type')[0] : null;
+                    $log->payload = $request->getBody()->getContents();
                 }, function ($request, $options, Promise $response) use ($log) {
                     $response->then(function (ResponseInterface $response) use ($log) {
-                        $log->status          = $response->getStatusCode();
-                        $log->response        = $response->getBody()->getContents();
-                        $log->response_format = $log->payload_format  = isset($response->getHeader('Content-Type')[0]) ? $response->getHeader('Content-Type')[0] : null;
+                        $log->status = $response->getStatusCode();
+                        $log->response = $response->getBody()->getContents();
+                        $log->response_format = $log->payload_format = isset($response->getHeader('Content-Type')[0]) ? $response->getHeader('Content-Type')[0] : null;
 
                         $log->save();
                     });
                 });
 
                 $client->post($webhook[ 'url' ], [
-                    'body'    => $this->eventData,
+                    'body' => $this->eventData,
                     'handler' => $middleware($client->getConfig('handler')),
                 ]);
             } else {
                 $client->postAsync($webhook[ 'url' ], [
-                    'body'   => $this->eventData,
+                    'body' => $this->eventData,
                     'verify' => false,
                     'future' => true,
                 ]);
