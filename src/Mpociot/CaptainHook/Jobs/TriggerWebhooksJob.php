@@ -3,6 +3,7 @@ namespace Mpociot\CaptainHook\Jobs;
 
 
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
@@ -32,21 +33,15 @@ class TriggerWebhooksJob implements ShouldQueue
     protected $eventData;
 
     /**
-     * @var \GuzzleHttp\Client
-     */
-    protected $client;
-
-    /**
      * Create a new job instance.
      *
      * @param array|\Illuminate\Support\Collection $wekbhooks
      * @param $eventData
      */
-    public function __construct($webhooks, $eventData, $client)
+    public function __construct($webhooks, $eventData)
     {
         $this->eventData = $eventData;
         $this->webhooks = $webhooks;
-        $this->client = $client;
     }
 
     /**
@@ -57,6 +52,7 @@ class TriggerWebhooksJob implements ShouldQueue
     public function handle()
     {
         $config = app('Illuminate\Contracts\Config\Repository');
+        $client = app(Client::class);
 
         if (($logging = $config->get('captain_hook.log.active') && $config->get('queue.driver') != 'sync') &&
             $config->get('captain_hook.log.storage_time') != -1) {
@@ -79,12 +75,12 @@ class TriggerWebhooksJob implements ShouldQueue
                     $log->save();
                 });
 
-                $this->client->post($webhook[ 'url' ], [
+                $client->post($webhook[ 'url' ], [
                     'body'    => $this->eventData,
                     'handler' => $logging ? $middleware : Middleware::httpErrors(),
                 ]);
             } else {
-                $this->client->postAsync($webhook[ 'url' ], [
+                $client->postAsync($webhook[ 'url' ], [
                     'body'   => $this->eventData,
                     'verify' => false,
                     'future' => true,
