@@ -58,6 +58,9 @@ class TriggerWebhooksJob implements ShouldQueue
             $config->get('captain_hook.log.storage_time') != -1) {
             CaptainHookLog::where('updated_at', '<', Carbon::now()->subHours($config->get('captain_hook.log.storage_time')))->delete();
         }
+        if ($logging) {
+            dd($this->webhooks);
+        }
         foreach ($this->webhooks as $webhook) {
             if ($logging) {
                 $log = new CaptainHookLog([

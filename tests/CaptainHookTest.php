@@ -11,6 +11,13 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
         return ['Mpociot\CaptainHook\CaptainHookServiceProvider'];
     }
 
+    protected function mockConfig($m, $configOption, $return)
+    {
+        return $m->shouldReceive('get')
+            ->with($configOption)
+            ->andReturn($return);
+    }
+
     public function setUp()
     {
         parent::setUp();
@@ -74,17 +81,16 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
         $client = m::mock('GuzzleHttp\\Client');
 
-        // For some reason, this fails. It first runs one, but then
-        // it's somehow resetting itself, and I have no clue how
-        // that is happening right now, but it needs some fix.
-//        $client->shouldReceive('postAsync')
-//            ->twice();
+        $client->shouldReceive('postAsync')
+            ->twice();
 
         $client->shouldReceive('postAsync')
             ->with('http://foo.baz/hook', m::any());
 
         $client->shouldReceive('postAsync')
             ->with('http://foo.bar/hook', m::any());
+
+        $this->app->instance(GuzzleHttp\Client::class, $client);
 
         $provider->setClient($client);
 
@@ -162,14 +168,16 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
         $client = m::mock('GuzzleHttp\\Client');
 
-//        $client->shouldReceive('postAsync')
-//            ->twice();
+        $client->shouldReceive('postAsync')
+            ->twice();
 
         $client->shouldReceive('postAsync')
             ->with('http://test.foo/saved', m::any());
 
         $client->shouldReceive('postAsync')
             ->with('http://test.bar/saved', m::any());
+
+        $this->app->instance(GuzzleHttp\Client::class, $client);
 
         $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
         $provider->setClient($client);
@@ -202,11 +210,13 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
         $client = m::mock('GuzzleHttp\\Client');
 
-//        $client->shouldReceive('postAsync')
-//            ->once();
+        $client->shouldReceive('postAsync')
+            ->once();
 
         $client->shouldReceive('postAsync')
             ->with('http://test.bar/saved', m::any());
+
+        $this->app->instance(GuzzleHttp\Client::class, $client);
 
         $config = m::mock('stdClass');
         $config->shouldReceive('get')
@@ -224,6 +234,52 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
         $provider->setClient($client);
         $provider->setConfig($config);
 
+
+        $obj = new TestModel();
+        $obj->name = 'Test';
+        $obj->save();
+    }
+
+    public function testItRunsSynchronouslyInJobWhileLogging()
+    {
+        $this->app['config']->set('queue.driver', 'notSync');
+
+        $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
+
+        $webhook = new Webhook();
+        $webhook->url = 'http://test.foo/saved';
+        $webhook->event = 'eloquent.saved: TestModel';
+        $webhook->save();
+
+        $webhook = new Webhook();
+        $webhook->url = 'http://test.bar/saved';
+        $webhook->event = 'eloquent.saved: TestModel';
+        $webhook->save();
+
+        $webhook = new Webhook();
+        $webhook->url = 'http://test.foo/deleted';
+        $webhook->event = 'eloquent.deleted: TestModel';
+        $webhook->save();
+
+        $client = m::mock('GuzzleHttp\\Client');
+
+        $client->shouldReceive('post')
+            ->twice();
+
+        $client = m::mock('GuzzleHttp\\Client');
+
+        $client->shouldReceive('post')
+            ->twice();
+
+        $client->shouldReceive('post')
+            ->with('http://test.foo/saved', m::any());
+
+        $client->shouldReceive('post')
+            ->with('http://test.bar/saved', m::any());
+
+        $this->app->instance(GuzzleHttp\Client::class, $client);
+
+        $provider->setClient($client);
 
         $obj = new TestModel();
         $obj->name = 'Test';
