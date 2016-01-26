@@ -191,7 +191,7 @@ class CaptainHookServiceProvider extends ServiceProvider
         $webhooks = $webhooks->filter($this->config->get('captain_hook.filter', null));
 
         $transformer = $this->config->get('captain_hook.transformer');
-        $this->dispatch(new TriggerWebhooksJob($webhooks, $transformer($eventData)));
+        $this->dispatch(new TriggerWebhooksJob($webhooks, $transformer($eventData), $this->client));
     }
 
     /**

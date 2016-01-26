@@ -3,15 +3,14 @@ namespace Mpociot\CaptainHook\Jobs;
 
 
 use Carbon\Carbon;
-use GuzzleHttp\Client;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Mpociot\CaptainHook\CaptainHookLog;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class TriggerWebhooksJob implements ShouldQueue
 {
@@ -21,7 +20,7 @@ class TriggerWebhooksJob implements ShouldQueue
     /**
      * All the webhooks that should be executed.
      *
-     * @var array
+     * @var array|\Illuminate\Support\Collection
      */
     protected $webhooks;
 
@@ -38,22 +37,16 @@ class TriggerWebhooksJob implements ShouldQueue
     protected $client;
 
     /**
-     * @var \Illuminate\Contracts\Config\Repository
-     */
-    protected $config;
-
-    /**
      * Create a new job instance.
      *
-     * @param array $wekbhooks
+     * @param array|\Illuminate\Support\Collection $wekbhooks
      * @param $eventData
      */
-    public function __construct(array $wekbhooks, $eventData)
+    public function __construct($webhooks, $eventData, $client)
     {
-        $this->client = new Client();
-        $this->config = app('Illuminate\Contracts\Config\Repository');
         $this->eventData = $eventData;
-        $this->webhooks = $wekbhooks;
+        $this->webhooks = $webhooks;
+        $this->client = $client;
     }
 
     /**
@@ -63,26 +56,27 @@ class TriggerWebhooksJob implements ShouldQueue
      */
     public function handle()
     {
-        if (($logging = $this->config->get('captain_hook.log.active') && $this->config->get('queue.driver') != 'sync') &&
-            $this->config->get('captain_hook.log.storage_time') != -1) {
-            CaptainHookLog::where('updated_at', '<', Carbon::now()->subHours($this->config->get('captain_hook.log.storage_time')))->delete();
+        $config = app('Illuminate\Contracts\Config\Repository');
+
+        if (($logging = $config->get('captain_hook.log.active') && $config->get('queue.driver') != 'sync') &&
+            $config->get('captain_hook.log.storage_time') != -1) {
+            CaptainHookLog::where('updated_at', '<', Carbon::now()->subHours($config->get('captain_hook.log.storage_time')))->delete();
         }
         foreach ($this->webhooks as $webhook) {
-            $logData = [
-                'webhook_id'     => $webhook[ 'id' ],
-                'url'            => $webhook[ 'url' ],
-            ];
-
             if ($logging) {
-                $middleware = Middleware::tap(function (Request $request) use ($logData) {
-                    $logData[ 'payload_format' ]  = $request->getHeader('Content-Type');
-                    $logData[ 'payload' ]         = $request->getBody();
-                }, function (Response $response) use ($logData) {
-                    $logData[ 'status' ]          = $response->getStatusCode();
-                    $logData[ 'response' ]        = $response->getBody();
-                    $logData[ 'response_format' ] = $response->getHeader('Content-Type');
+                $log = new CaptainHookLog([
+                    'webhook_id'     => $webhook[ 'id' ],
+                    'url'            => $webhook[ 'url' ],
+                ]);
+                $middleware = Middleware::tap(function (Request $request) use ($log) {
+                    $log->payload_format  = $request->getHeader('Content-Type');
+                    $log->payload         = $request->getBody();
+                }, function (Response $response) use ($log) {
+                    $log->status          = $response->getStatusCode();
+                    $log->response        = $response->getBody();
+                    $log->response_format = $response->getHeader('Content-Type');
 
-                    CaptainHookLog::create($logData);
+                    $log->save();
                 });
 
                 $this->client->post($webhook[ 'url' ], [
@@ -90,7 +84,7 @@ class TriggerWebhooksJob implements ShouldQueue
                     'handler' => $logging ? $middleware : Middleware::httpErrors(),
                 ]);
             } else {
-                $this->client->postAsync($webhook[ 'uri' ], [
+                $this->client->postAsync($webhook[ 'url' ], [
                     'body'   => $this->eventData,
                     'verify' => false,
                     'future' => true,
