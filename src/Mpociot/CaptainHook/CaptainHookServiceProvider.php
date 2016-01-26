@@ -79,7 +79,7 @@ class CaptainHookServiceProvider extends ServiceProvider
     {
         $migrations = [
             __DIR__ . '/../../database/2015_10_29_000000_captain_hook_setup_table.php' => database_path('/migrations/' . date('Y_m_d_His') . '_captain_hook_setup_table.php'),
-            __DIR__ . '/../../database/2015_10_29_000000_captain_hook_setup_logs_table.php' => database_path('/migrations/' . date('Y_m_d_His') . '_captain_hook_setup_logs.php'),
+            __DIR__ . '/../../database/2015_10_29_000001_captain_hook_setup_logs_table.php' => database_path('/migrations/' . substr(date('Y_m_d_His'), 0, -1).'1_captain_hook_setup_logs.php'),
         ];
 
         foreach ($migrations as $migration => $toPath) {
