@@ -11,6 +11,13 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
         return ['Mpociot\CaptainHook\CaptainHookServiceProvider'];
     }
 
+    protected function mockConfig($m, $configOption, $return)
+    {
+        return $m->shouldReceive('get')
+            ->with($configOption)
+            ->andReturn($return);
+    }
+
     public function setUp()
     {
         parent::setUp();
@@ -36,7 +43,14 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
     protected function getEnvironmentSetUp($app)
     {
         // Setup default database to use sqlite :memory:
+        $app['config']->set('captain_hook.transformer', function ($eventData) {
+            return json_encode($eventData);
+        });
+        $app['config']->set('captain_hook.listeners', ['eloquent.*']);
+        $app['config']->set('captain_hook.log.active', true);
+        $app['config']->set('captain_hook.log.storage_quantity', 50);
         $app['config']->set('database.default', 'testing');
+        $app['config']->set('queue.driver', 'sync');
 
         \Schema::create('test_models', function ($table) {
             $table->increments('id');
@@ -77,6 +91,8 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
         $client->shouldReceive('postAsync')
             ->with('http://foo.bar/hook', m::any());
 
+        $this->app->instance(GuzzleHttp\Client::class, $client);
+
         $provider->setClient($client);
 
         // Trigger eloquent event
@@ -108,6 +124,7 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
             ->with('http://foo.bar/hook', ['body' => json_encode(['testModel' => $model]), 'verify' => false, 'future' => true]);
 
         $provider->setClient($client);
+        $this->app->instance(GuzzleHttp\Client::class, $client);
 
         // Trigger eloquent event
         \Event::fire(new TestEvent($model));
@@ -161,6 +178,8 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
         $client->shouldReceive('postAsync')
             ->with('http://test.bar/saved', m::any());
 
+        $this->app->instance(GuzzleHttp\Client::class, $client);
+
         $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
         $provider->setClient($client);
 
@@ -198,11 +217,18 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
         $client->shouldReceive('postAsync')
             ->with('http://test.bar/saved', m::any());
 
+        $this->app->instance(GuzzleHttp\Client::class, $client);
+
         $config = m::mock('stdClass');
         $config->shouldReceive('get')
             ->with('captain_hook.filter', null)
             ->andReturn(function ($item) {
                 return $item->tenant_id == 2;
+            });
+        $config->shouldReceive('get')
+            ->with('captain_hook.transformer')
+            ->andReturn(function ($data) {
+                return json_encode($data);
             });
 
         $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
@@ -218,6 +244,7 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
 class TestModel extends \Illuminate\Database\Eloquent\Model
 {
+    protected $fillable = ['name'];
 }
 
 class TestEvent extends \Illuminate\Support\Facades\Event

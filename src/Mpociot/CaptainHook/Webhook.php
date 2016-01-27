@@ -40,4 +40,14 @@ class Webhook extends Eloquent
             Cache::forget(self::CACHE_KEY);
         });
     }
+
+    /**
+     * Retrieve the logs for a given hook.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function logs()
+    {
+        return $this->hasMany(WebhookLog::class);
+    }
 }

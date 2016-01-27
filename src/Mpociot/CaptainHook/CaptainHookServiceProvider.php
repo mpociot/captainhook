@@ -3,11 +3,13 @@ namespace Mpociot\CaptainHook;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Mpociot\CaptainHook\Commands\AddWebhook;
 use Mpociot\CaptainHook\Commands\DeleteWebhook;
 use Mpociot\CaptainHook\Commands\ListWebhooks;
+use Mpociot\CaptainHook\Jobs\TriggerWebhooksJob;
 
 /**
  * This file is part of CaptainHook arrrrr
@@ -17,12 +19,14 @@ use Mpociot\CaptainHook\Commands\ListWebhooks;
  */
 class CaptainHookServiceProvider extends ServiceProvider
 {
+    use DispatchesJobs;
+
     /**
      * The registered event listeners.
      *
      * @var array
      */
-    protected $listeners = ['eloquent.*'];
+    protected $listeners;
 
     /**
      * All registered webhooks
@@ -55,6 +59,7 @@ class CaptainHookServiceProvider extends ServiceProvider
         $this->config = app('Illuminate\Contracts\Config\Repository');
         $this->publishMigration();
         $this->publishConfig();
+        $this->listeners = $this->config->get('captain_hook.listeners');
         $this->registerEventListeners();
     }
 
@@ -73,12 +78,20 @@ class CaptainHookServiceProvider extends ServiceProvider
      */
     protected function publishMigration()
     {
-        $published_migration = glob(database_path('/migrations/*_captain_hook_setup_table.php'));
-        if (count($published_migration) === 0) {
-            $this->publishes([
-                __DIR__ . '/../../database/2015_10_29_000000_captain_hook_setup_table.php' => database_path('/migrations/' . date('Y_m_d_His') . '_captain_hook_setup_table.php'),
-            ], 'migrations');
+        $migrations = [
+            __DIR__ . '/../../database/2015_10_29_000000_captain_hook_setup_table.php' => database_path('/migrations/' . date('Y_m_d_His') . '_captain_hook_setup_table.php'),
+            __DIR__ . '/../../database/2015_10_29_000001_captain_hook_setup_logs_table.php' => database_path('/migrations/' . date('Y_m_d_His', strtotime('+1s')).'_captain_hook_setup_logs.php'),
+        ];
+
+        foreach ($migrations as $migration => $toPath) {
+            preg_match('/_captain_hook_.*\.php/', $migration, $match);
+            $published_migration = glob(database_path('/migrations/*'.$match[0]));
+            if (count($published_migration) !== 0) {
+                unset($migrations[$migration]);
+            }
         }
+
+        $this->publishes($migrations, 'migrations');
     }
 
     /**
@@ -178,37 +191,8 @@ class CaptainHookServiceProvider extends ServiceProvider
         $webhooks = $this->getWebhooks()->where('event', $eventName);
         $webhooks = $webhooks->filter($this->config->get('captain_hook.filter', null));
 
-        $this->callWebhooks($webhooks, $eventData);
-    }
-
-    /**
-     * Call all webhooks asynchronous
-     *
-     * @param array $webhooks
-     * @param       $eventData
-     */
-    private function callWebhooks($webhooks, $eventData)
-    {
-        foreach ($webhooks as $webhook) {
-            $this->client->postAsync($webhook[ 'url' ], [
-                'body' => json_encode($this->createRequestBody($eventData)),
-                'verify' => false,
-                'future' => true
-            ]);
-        }
-    }
-
-    /**
-     * Create the request body for the event data.
-     * Override this method if necessary to post different data.
-     *
-     * @param $eventData
-     *
-     * @return array
-     */
-    protected function createRequestBody($eventData)
-    {
-        return $eventData;
+        $transformer = $this->config->get('captain_hook.transformer');
+        $this->dispatch(new TriggerWebhooksJob($webhooks, $transformer($eventData)));
     }
 
     /**
