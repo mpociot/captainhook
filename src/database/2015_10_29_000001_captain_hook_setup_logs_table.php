@@ -33,6 +33,6 @@ class CaptainHookSetupLogsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('captain_hook_logs');
+        Schema::drop('webhook_logs');
     }
 }
