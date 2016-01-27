@@ -36,24 +36,25 @@ Webhook::create([
     - [Delete existing webhooks](#delete)
     - [List all active webhooks](#list)
     - [Receiving a webhook notification](#webhook)
+    - [Webhook logging](#logging)
     - [Using webhooks with multi tenancy](#tenant)
-- [License](#license) 
+- [License](#license)
 
 <a name="installation" />
 ## Installation
 
-In order to add CaptainHook to your project, just add 
+In order to add CaptainHook to your project, just add
 
-    "mpociot/captainhook": "~1.0"
+    "mpociot/captainhook": "~2.0"
 
 to your composer.json. Then run `composer install` or `composer update`.
 
 Or run `composer require mpociot/captainhook ` if you prefer that.
 
-Then in your `config/app.php` add 
+Then in your `config/app.php` add
 
     Mpociot\CaptainHook\CaptainHookServiceProvider::class
-    
+
 to the `providers` array.
 
 
@@ -121,25 +122,7 @@ It will output all configured webhooks in a table.
 
 If you want CaptainHook to listen for custom events, you need to override the `CaptainHookServiceProvider`.
 
-All listeners are defined in a protected array inside the service provider.
-
-```php
-
-class CustomCaptainHookServiceProvider extends CaptainHookServiceProvider
-{
-
-    /**
-     * The registered event listeners.
-     *
-     * @var array
-     */
-    protected $listeners = ["eloquent.*", "\\App\\Events\\MyCustomEvent"];
-
-}
-```
-
-If you extend the original `CaptainHookServiceProvider` be sure to replace your custom service provider with the package provider in your `config/app.php`.
-
+All listeners are defined in the config file located at `config/captain_hook.php`.
 
 <a name="webhook" />
 ### Receiving a webhook notification
@@ -154,6 +137,16 @@ $event_json = json_decode($input);
 // Do something with $event_json
 ```
 
+<a name="logging" />
+### Webhook logging
+
+Starting with version 2.0, this package allows you to log the payload and response of the triggered webhooks.
+
+> **NOTE:** In order to use the logging functionality, you need to use a queue driver with Laravel, which is not `sync`. Otherwise your application would need to wait for the webhook execution.
+
+You can configure how many logs will be saved **per webhook** (Default 50).
+
+This value can be modified in the configuration file `config/captain_hook.php`.
 
 <a name="tenant" />
 ### Using webhooks with multi tenancy
@@ -161,7 +154,7 @@ $event_json = json_decode($input);
 Sometimes you don't want to use system wide webhooks, but rather want them scoped to a specific "tenant".
 This could be bound to a user or a team.
 
-The webhook table has a field `tenant_id` for this purpose. 
+The webhook table has a field `tenant_id` for this purpose.
 So if you want your users to be able to add their own webhooks, you won't use the artisan commands to add webhooks to the database,
 but add them on your own.
 
@@ -179,7 +172,7 @@ Now when you fire this event - you want to call the webhook only for the current
 
 In order to filter the webhooks, modify the `filter` configuration value in the `config/captain_hook.php` file.
 This filter is a Laravel collection filter.
- 
+
 To return only the webhooks for the currently logged in user, it might look like this:
 
 ```php
@@ -193,4 +186,4 @@ To return only the webhooks for the currently logged in user, it might look like
 
 CaptainHook is free software distributed under the terms of the MIT license.
 
-'Day 02: Table, Lamp & Treasure Map' image licensed under [Creative Commons 2.0](https://creativecommons.org/licenses/by/2.0/) - Photo from [stevedave](https://www.flickr.com/photos/stevedave/4153323914) 
+'Day 02: Table, Lamp & Treasure Map' image licensed under [Creative Commons 2.0](https://creativecommons.org/licenses/by/2.0/) - Photo from [stevedave](https://www.flickr.com/photos/stevedave/4153323914)
