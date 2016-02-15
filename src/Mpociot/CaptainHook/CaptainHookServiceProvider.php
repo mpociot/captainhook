@@ -1,4 +1,5 @@
 <?php
+
 namespace Mpociot\CaptainHook;
 
 use GuzzleHttp\Client;
@@ -12,10 +13,9 @@ use Mpociot\CaptainHook\Commands\ListWebhooks;
 use Mpociot\CaptainHook\Jobs\TriggerWebhooksJob;
 
 /**
- * This file is part of CaptainHook arrrrr
+ * This file is part of CaptainHook arrrrr.
  *
  * @license MIT
- * @package CaptainHook
  */
 class CaptainHookServiceProvider extends ServiceProvider
 {
@@ -29,7 +29,7 @@ class CaptainHookServiceProvider extends ServiceProvider
     protected $listeners;
 
     /**
-     * All registered webhooks
+     * All registered webhooks.
      * @var array
      */
     protected $webhooks = [];
@@ -50,7 +50,7 @@ class CaptainHookServiceProvider extends ServiceProvider
     protected $config;
 
     /**
-     * Bootstrap
+     * Bootstrap.
      */
     public function boot()
     {
@@ -74,13 +74,13 @@ class CaptainHookServiceProvider extends ServiceProvider
     }
 
     /**
-     * Publish migration
+     * Publish migration.
      */
     protected function publishMigration()
     {
         $migrations = [
-            __DIR__ . '/../../database/2015_10_29_000000_captain_hook_setup_table.php' => database_path('/migrations/' . date('Y_m_d_His') . '_captain_hook_setup_table.php'),
-            __DIR__ . '/../../database/2015_10_29_000001_captain_hook_setup_logs_table.php' => database_path('/migrations/' . date('Y_m_d_His', strtotime('+1s')).'_captain_hook_setup_logs.php'),
+            __DIR__.'/../../database/2015_10_29_000000_captain_hook_setup_table.php' => database_path('/migrations/'.date('Y_m_d_His').'_captain_hook_setup_table.php'),
+            __DIR__.'/../../database/2015_10_29_000001_captain_hook_setup_logs_table.php' => database_path('/migrations/'.date('Y_m_d_His', strtotime('+1s')).'_captain_hook_setup_logs.php'),
         ];
 
         foreach ($migrations as $migration => $toPath) {
@@ -95,7 +95,7 @@ class CaptainHookServiceProvider extends ServiceProvider
     }
 
     /**
-     * Publish configuration file
+     * Publish configuration file.
      */
     protected function publishConfig()
     {
@@ -105,7 +105,7 @@ class CaptainHookServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register all active event listeners
+     * Register all active event listeners.
      */
     protected function registerEventListeners()
     {
@@ -140,11 +140,12 @@ class CaptainHookServiceProvider extends ServiceProvider
      */
     public function getWebhooks()
     {
-        if (!$this->getCache()->has(Webhook::CACHE_KEY)) {
+        if (! $this->getCache()->has(Webhook::CACHE_KEY)) {
             $this->getCache()->rememberForever(Webhook::CACHE_KEY, function () {
                 return Webhook::all();
             });
         }
+
         return collect($this->getCache()->get(Webhook::CACHE_KEY));
     }
 
@@ -196,7 +197,7 @@ class CaptainHookServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the artisan commands
+     * Register the artisan commands.
      */
     protected function registerCommands()
     {

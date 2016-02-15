@@ -1,4 +1,5 @@
 <?php
+
 namespace Mpociot\CaptainHook\Commands;
 
 use Illuminate\Console\Command;
@@ -31,7 +32,7 @@ class DeleteWebhook extends Command
         $id = $this->argument('id');
         $hook = Webhook::find($id);
         if ($hook === null) {
-            $this->error('Webhook with ID ' . $id . ' could not be found.');
+            $this->error('Webhook with ID '.$id.' could not be found.');
         } else {
             $hook->delete();
             $this->info('The webhook was deleted successfully.');

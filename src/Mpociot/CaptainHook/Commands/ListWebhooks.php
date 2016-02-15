@@ -1,4 +1,5 @@
 <?php
+
 namespace Mpociot\CaptainHook\Commands;
 
 use Illuminate\Console\Command;

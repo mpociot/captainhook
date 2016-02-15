@@ -66,19 +66,17 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
         $provider->setWebhooks([
             [
                 'event' => 'eloquent.saved: TestModel',
-                'url' => 'http://foo.baz/hook'
+                'url' => 'http://foo.baz/hook',
             ],
             [
                 'event' => 'eloquent.saved: TestModel',
-                'url' => 'http://foo.bar/hook'
+                'url' => 'http://foo.bar/hook',
             ],
             [
                 'event' => 'eloquent.deleted: TestModel',
-                'url' => 'http://foo.baz/foo'
-            ]
+                'url' => 'http://foo.baz/foo',
+            ],
         ]);
-
-
 
         $client = m::mock('GuzzleHttp\\Client');
 
@@ -105,13 +103,13 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
     {
         $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
         $provider->setListeners([
-            'TestEvent'
+            'TestEvent',
         ]);
         $provider->setWebhooks([
             [
                 'event' => 'TestEvent',
-                'url' => 'http://foo.bar/hook'
-            ]
+                'url' => 'http://foo.bar/hook',
+            ],
         ]);
 
         $model = new TestModel();
@@ -166,7 +164,6 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
         $webhook->event = 'eloquent.deleted: TestModel';
         $webhook->save();
 
-
         $client = m::mock('GuzzleHttp\\Client');
 
         $client->shouldReceive('postAsync')
@@ -208,7 +205,6 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
         $webhook->event = 'eloquent.saved: TestModel';
         $webhook->save();
 
-
         $client = m::mock('GuzzleHttp\\Client');
 
         $client->shouldReceive('postAsync')
@@ -234,7 +230,6 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
         $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
         $provider->setClient($client);
         $provider->setConfig($config);
-
 
         $obj = new TestModel();
         $obj->name = 'Test';
