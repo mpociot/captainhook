@@ -1,4 +1,5 @@
 <?php
+
 namespace Mpociot\CaptainHook\Commands;
 
 use Exception;
@@ -36,10 +37,10 @@ class AddWebhook extends Command
         try {
             $hook->save();
             $this->info('The webhook was saved successfully.');
-            $this->info('Event: ' . $hook->event);
-            $this->info('URL: ' . $hook->url);
+            $this->info('Event: '.$hook->event);
+            $this->info('URL: '.$hook->url);
         } catch (Exception $e) {
-            $this->error("The webhook couldn't be added to the database " . $e->getMessage());
+            $this->error("The webhook couldn't be added to the database ".$e->getMessage());
         }
     }
 }

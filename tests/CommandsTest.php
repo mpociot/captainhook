@@ -51,7 +51,6 @@ class CommandsTest extends Orchestra\Testbench\TestCase
 
         $cmd->handle();
 
-
         $this->seeInDatabase('webhooks', [
             'event' => 'TestModelTestModel',
             'url' => 'http://foo.bar',
@@ -75,7 +74,6 @@ class CommandsTest extends Orchestra\Testbench\TestCase
 
         $cmd->handle();
 
-
         $this->seeInDatabase('webhooks', [
             'url' => 'http://foo.baz',
             'event' => 'DeleteWebhook',
@@ -98,7 +96,6 @@ class CommandsTest extends Orchestra\Testbench\TestCase
             ->with(m::type('string'));
 
         $cmd->handle();
-
 
         $this->notSeeInDatabase('webhooks', [
             'url' => 'http://foo.baz',

@@ -1,4 +1,5 @@
 <?php
+
 namespace Mpociot\CaptainHook\Jobs;
 
 use GuzzleHttp\Client;
@@ -15,7 +16,6 @@ use Psr\Http\Message\ResponseInterface;
 class TriggerWebhooksJob implements ShouldQueue
 {
     use Queueable, InteractsWithQueue, SerializesModels;
-
 
     /**
      * All the webhooks that should be executed.
