@@ -34,8 +34,8 @@ class TriggerWebhooksJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param array|\Illuminate\Support\Collection $wekbhooks
-     * @param $eventData
+     * @param array|\Illuminate\Support\Collection $webhooks
+     * @param mixed $eventData
      */
     public function __construct($webhooks, $eventData)
     {
