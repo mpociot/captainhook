@@ -1,13 +1,13 @@
 <?php
+
 namespace Mpociot\CaptainHook;
 
 use Illuminate\Database\Eloquent\Model as Eloquent;
 
 /**
- * This file is part of CaptainHook arrrrr
+ * This file is part of CaptainHook arrrrr.
  *
  * @license MIT
- * @package CaptainHook
  */
 class WebhookLog extends Eloquent
 {

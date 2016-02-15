@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This file is part of CaptainHook arrrrr
+ * This file is part of CaptainHook arrrrr.
  *
  * @license MIT
  */
@@ -46,7 +46,6 @@ return [
     'transformer' => function ($eventData) {
         return json_encode($eventData);
     },
-
 
     /*
     |--------------------------------------------------------------------------
