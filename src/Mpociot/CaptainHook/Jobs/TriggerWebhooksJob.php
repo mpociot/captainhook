@@ -4,14 +4,14 @@ namespace Mpociot\CaptainHook\Jobs;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Middleware;
-use GuzzleHttp\Promise\Promise;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use GuzzleHttp\Promise\Promise;
 use Mpociot\CaptainHook\WebhookLog;
+use Illuminate\Queue\SerializesModels;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class TriggerWebhooksJob implements ShouldQueue
 {

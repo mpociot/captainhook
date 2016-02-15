@@ -4,12 +4,12 @@ namespace Mpociot\CaptainHook;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
-use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Mpociot\CaptainHook\Commands\AddWebhook;
-use Mpociot\CaptainHook\Commands\DeleteWebhook;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Mpociot\CaptainHook\Commands\ListWebhooks;
+use Mpociot\CaptainHook\Commands\DeleteWebhook;
 use Mpociot\CaptainHook\Jobs\TriggerWebhooksJob;
 
 /**
