@@ -28,7 +28,7 @@
         "guzzlehttp/guzzle": "~5.3 || ~6.0",
         "illuminate/database": "~5.0",
         "illuminate/events": "~5.0",
-        "mockery/mockery": "0.9.*",
+        "mockery/mockery": "~0.9",
         "orchestra/testbench": "~3.0",
         "phpunit/phpunit": "~4.7 || ~5.0"
     },
