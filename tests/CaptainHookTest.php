@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Queue\SerializesModels;
 use Mockery as m;
 use Mpociot\CaptainHook\Webhook;
+use Illuminate\Queue\SerializesModels;
 
 class CaptainHookTest extends Orchestra\Testbench\TestCase
 {

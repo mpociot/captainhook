@@ -1,8 +1,8 @@
 <?php
 namespace Mpociot\CaptainHook;
 
-use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 
 /**
  * This file is part of CaptainHook arrrrr
