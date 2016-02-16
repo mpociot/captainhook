@@ -86,8 +86,7 @@ class TriggerWebhooksJob implements ShouldQueue
                 $client->post($webhook[ 'url' ], [
                     'body' => $this->eventData,
                     'verify' => false,
-                    'timeout' => 10,
-                    'future' => true,
+                    'timeout' => 10
                 ]);
             }
         }

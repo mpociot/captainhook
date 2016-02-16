@@ -119,7 +119,7 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
         $client->shouldReceive('post')
             ->once()
-            ->with('http://foo.bar/hook', ['body' => json_encode(['testModel' => $model]), 'verify' => false, 'future' => true, 'timeout' => 10]);
+            ->with('http://foo.bar/hook', ['body' => json_encode(['testModel' => $model]), 'verify' => false, 'timeout' => 10]);
 
         $provider->setClient($client);
         $this->app->instance(GuzzleHttp\Client::class, $client);
