@@ -83,9 +83,10 @@ class TriggerWebhooksJob implements ShouldQueue
                     'handler' => $middleware($client->getConfig('handler')),
                 ]);
             } else {
-                $client->postAsync($webhook[ 'url' ], [
+                $client->post($webhook[ 'url' ], [
                     'body' => $this->eventData,
                     'verify' => false,
+                    'timeout' => 10,
                     'future' => true,
                 ]);
             }

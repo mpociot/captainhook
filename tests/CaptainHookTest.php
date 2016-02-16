@@ -80,13 +80,13 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
         $client = m::mock('GuzzleHttp\\Client');
 
-        $client->shouldReceive('postAsync')
+        $client->shouldReceive('post')
             ->twice();
 
-        $client->shouldReceive('postAsync')
+        $client->shouldReceive('post')
             ->with('http://foo.baz/hook', m::any());
 
-        $client->shouldReceive('postAsync')
+        $client->shouldReceive('post')
             ->with('http://foo.bar/hook', m::any());
 
         $this->app->instance(GuzzleHttp\Client::class, $client);
@@ -117,9 +117,9 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
         $client = m::mock('GuzzleHttp\\Client');
 
-        $client->shouldReceive('postAsync')
+        $client->shouldReceive('post')
             ->once()
-            ->with('http://foo.bar/hook', ['body' => json_encode(['testModel' => $model]), 'verify' => false, 'future' => true]);
+            ->with('http://foo.bar/hook', ['body' => json_encode(['testModel' => $model]), 'verify' => false, 'future' => true, 'timeout' => 10]);
 
         $provider->setClient($client);
         $this->app->instance(GuzzleHttp\Client::class, $client);
@@ -166,13 +166,13 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
         $client = m::mock('GuzzleHttp\\Client');
 
-        $client->shouldReceive('postAsync')
+        $client->shouldReceive('post')
             ->twice();
 
-        $client->shouldReceive('postAsync')
+        $client->shouldReceive('post')
             ->with('http://test.foo/saved', m::any());
 
-        $client->shouldReceive('postAsync')
+        $client->shouldReceive('post')
             ->with('http://test.bar/saved', m::any());
 
         $this->app->instance(GuzzleHttp\Client::class, $client);
@@ -207,10 +207,10 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
         $client = m::mock('GuzzleHttp\\Client');
 
-        $client->shouldReceive('postAsync')
+        $client->shouldReceive('post')
             ->once();
 
-        $client->shouldReceive('postAsync')
+        $client->shouldReceive('post')
             ->with('http://test.bar/saved', m::any());
 
         $this->app->instance(GuzzleHttp\Client::class, $client);
