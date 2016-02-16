@@ -54,7 +54,6 @@ return [
     |
     | Captain Hook ships with built-in logging to allow you to store data
     | about the requests that you have made in a certain time interval.
-    | Note that no logging occurs when using the 'sync' Queue driver.
     */
     'log' => [
         'active' => true,
