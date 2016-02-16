@@ -142,7 +142,7 @@ $event_json = json_decode($input);
 
 Starting with version 2.0, this package allows you to log the payload and response of the triggered webhooks.
 
-> **NOTE:** In order to use the logging functionality, you need to use a queue driver with Laravel, which is not `sync`. Otherwise your application would need to wait for the webhook execution.
+> **NOTE:** A non-blocking queue driver (not `sync`) is highliy recommended. Otherwise your application will need to wait for the webhook execution.
 
 You can configure how many logs will be saved **per webhook** (Default 50).
 

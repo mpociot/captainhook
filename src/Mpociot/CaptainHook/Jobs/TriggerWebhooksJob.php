@@ -53,7 +53,7 @@ class TriggerWebhooksJob implements ShouldQueue
         $config = app('Illuminate\Contracts\Config\Repository');
         $client = app(Client::class);
 
-        $logging = $config->get('captain_hook.log.active') && $config->get('queue.driver') != 'sync';
+        $logging = $config->get('captain_hook.log.active');
 
         foreach ($this->webhooks as $webhook) {
             if ($logging) {
@@ -80,6 +80,7 @@ class TriggerWebhooksJob implements ShouldQueue
 
                 $client->post($webhook[ 'url' ], [
                     'body' => $this->eventData,
+                    'verify' => false,
                     'handler' => $middleware($client->getConfig('handler')),
                 ]);
             } else {

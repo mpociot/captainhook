@@ -47,10 +47,9 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
             return json_encode($eventData);
         });
         $app['config']->set('captain_hook.listeners', ['eloquent.*']);
-        $app['config']->set('captain_hook.log.active', true);
+        $app['config']->set('captain_hook.log.active', false);
         $app['config']->set('captain_hook.log.storage_quantity', 50);
         $app['config']->set('database.default', 'testing');
-        $app['config']->set('queue.driver', 'sync');
 
         \Schema::create('test_models', function ($table) {
             $table->increments('id');
@@ -64,18 +63,18 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
     {
         $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
         $provider->setWebhooks([
-            [
+            Webhook::create([
                 'event' => 'eloquent.saved: TestModel',
                 'url' => 'http://foo.baz/hook',
-            ],
-            [
+            ]),
+            Webhook::create([
                 'event' => 'eloquent.saved: TestModel',
                 'url' => 'http://foo.bar/hook',
-            ],
-            [
+            ]),
+            Webhook::create([
                 'event' => 'eloquent.deleted: TestModel',
                 'url' => 'http://foo.baz/foo',
-            ],
+            ]),
         ]);
 
         $client = m::mock('GuzzleHttp\\Client');
