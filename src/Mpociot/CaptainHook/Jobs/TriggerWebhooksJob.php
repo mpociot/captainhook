@@ -76,6 +76,11 @@ class TriggerWebhooksJob implements SelfHandling, ShouldQueue
                         $log->response_format = $log->payload_format = isset($response->getHeader('Content-Type')[0]) ? $response->getHeader('Content-Type')[0] : null;
 
                         $log->save();
+
+                        // Retry this job if the webhook response didn't give us a HTTP 200 OK
+                        if ($response->getStatusCode() != 200) {
+                            $this->release(30);
+                        }
                     });
                 });
 
