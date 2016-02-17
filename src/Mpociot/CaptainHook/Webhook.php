@@ -35,7 +35,6 @@ class Webhook extends Eloquent
             Cache::forget(self::CACHE_KEY);
         });
 
-
         static::updated(function ($results) {
             Cache::forget(self::CACHE_KEY);
         });
