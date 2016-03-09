@@ -266,6 +266,52 @@ class LogTest extends Orchestra\Testbench\TestCase
             'response_format' => null,
         ]);
     }
+
+
+
+    public function testResponseCallbackReceivesWebhookAndResponse()
+    {
+        $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
+
+        $webhook = new Webhook();
+        $webhook->url = 'http://test.foo/saved';
+        $webhook->event = 'eloquent.saved: LogTestModel';
+        $webhook->save();
+
+        $checkWebhook = Webhook::find($webhook->getKey());
+
+        $handler = new \GuzzleHttp\Handler\MockHandler([
+            new \GuzzleHttp\Psr7\Response(200, [
+                'Content-Type' => 'application/json',
+            ], '{"data":"First data"}')
+        ]);
+
+        $mock = \Mockery::mock('stdClass');
+        $mock->shouldReceive('callback')
+            ->once()
+            ->withArgs([
+                $checkWebhook->toArray(),
+                Mockery::type('Psr\Http\Message\ResponseInterface')
+            ]);
+
+        $this->app['config']->set('captain_hook.response_callback', (function($webhook, $response) use ($mock){
+            return $mock->callback($webhook->toArray(), $response);
+        }));
+
+        $handler = \GuzzleHttp\HandlerStack::create($handler);
+
+        $client = new \GuzzleHttp\Client(['handler' => $handler]);
+
+        $this->app->instance(GuzzleHttp\Client::class, $client);
+
+        $provider->setClient($client);
+
+        $test = new LogTestModel();
+        $test->name = 'Test';
+        $test->save();
+    }
+
+
 }
 
 class LogTestModel extends \Illuminate\Database\Eloquent\Model

@@ -52,6 +52,23 @@ return [
         return json_encode($eventData);
     },
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Webhook response callback
+    |--------------------------------------------------------------------------
+    |
+    | The response callback can be used if you want to trigger
+    | certain actions depending on the webhook response.
+    | This is unused by default.
+    |
+    | You can also use the 'Foo\Class@handle' notation if you want.
+    |
+    */
+    'response_callback' => function ($webhook, $response) {
+        // Handle custom response status codes, ...
+    },
+
     /*
     |--------------------------------------------------------------------------
     | Logging configuration

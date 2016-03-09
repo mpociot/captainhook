@@ -267,7 +267,7 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
         \Event::fire(new TestEvent($model));
     }
 
-    public function testInvalidCallbackThrowsException()
+    public function testInvalidTransformerThrowsException()
     {
         $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
         $provider->setListeners([
