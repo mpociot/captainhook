@@ -43,7 +43,7 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
     protected function getEnvironmentSetUp($app)
     {
         // Setup default database to use sqlite :memory:
-        $app['config']->set('captain_hook.transformer', function ($eventData) {
+        $app['config']->set('captain_hook.transformer', function ($eventData, $webhook) {
             return json_encode($eventData);
         });
         $app['config']->set('captain_hook.listeners', ['eloquent.*']);
@@ -113,15 +113,185 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
         $model = new TestModel();
         $model->name = 'Test';
+        $model->save();
 
+        // We need to fetch a new instance of the model - just like __wakeup would do
+        $checkModel = TestModel::find($model->getKey());
         $client = m::mock('GuzzleHttp\\Client');
 
         $client->shouldReceive('post')
             ->once()
-            ->with('http://foo.bar/hook', ['body' => json_encode(['testModel' => $model]), 'verify' => false, 'timeout' => 10, 'exceptions' => false]);
+            ->with('http://foo.bar/hook', ['body' => json_encode(['testModel' => $checkModel]), 'verify' => false, 'timeout' => 10, 'exceptions' => false]);
 
         $provider->setClient($client);
         $this->app->instance(GuzzleHttp\Client::class, $client);
+
+        // Trigger eloquent event
+        \Event::fire(new TestEvent($model));
+    }
+
+
+
+    public function testUsesCustomTransformMethod()
+    {
+        $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
+        $provider->setListeners([
+            'TestEvent',
+        ]);
+        $provider->setWebhooks([
+            [
+                'event' => 'TestEvent',
+                'url' => 'http://foo.bar/hook',
+            ],
+        ]);
+        $this->app['config']->set('captain_hook.transformer', function ($eventData) {
+            return $eventData->__toString();
+        });
+
+
+        $model = new TestModel();
+        $model->name = 'Test';
+        $model->save();
+
+        // We need to fetch a new instance of the model - just like __wakeup would do
+        $checkModel = TestModel::find($model->getKey());
+        $client = m::mock('GuzzleHttp\\Client');
+
+        $client->shouldReceive('post')
+            ->once()
+            ->with('http://foo.bar/hook', ['body' => 'this is just a test.', 'verify' => false, 'timeout' => 10, 'exceptions' => false]);
+
+        $provider->setClient($client);
+        $this->app->instance(GuzzleHttp\Client::class, $client);
+
+        // Trigger eloquent event
+        \Event::fire(new TestEvent($model));
+    }
+
+    public function testTransformerReceivesWebhook()
+    {
+        $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
+        $provider->setListeners([
+            'TestEvent',
+        ]);
+        $provider->setWebhooks([
+            [
+                'event' => 'TestEvent',
+                'custom_data' => 'Custom Webhook Event Data',
+                'url' => 'http://foo.bar/hook',
+            ],
+        ]);
+        $this->app['config']->set('captain_hook.transformer', function ($eventData, $webhook) {
+            return $webhook['custom_data'];
+        });
+
+
+        $model = new TestModel();
+        $model->name = 'Test';
+        $model->save();
+
+        // We need to fetch a new instance of the model - just like __wakeup would do
+        $checkModel = TestModel::find($model->getKey());
+        $client = m::mock('GuzzleHttp\\Client');
+
+        $client->shouldReceive('post')
+            ->once()
+            ->with('http://foo.bar/hook', ['body' => 'Custom Webhook Event Data', 'verify' => false, 'timeout' => 10, 'exceptions' => false]);
+
+        $provider->setClient($client);
+        $this->app->instance(GuzzleHttp\Client::class, $client);
+
+        // Trigger eloquent event
+        \Event::fire(new TestEvent($model));
+    }
+
+    public function testCanUseCallbackAsTransformer()
+    {
+        $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
+        $provider->setListeners([
+            'TestEvent',
+        ]);
+        $provider->setWebhooks([
+            [
+                'event' => 'TestEvent',
+                'url' => 'http://foo.bar/hook',
+            ],
+        ]);
+        $this->app['config']->set('captain_hook.transformer', 'TestTransformer@transform');
+
+
+        $model = new TestModel();
+        $model->name = 'Test';
+        $model->save();
+
+        // We need to fetch a new instance of the model - just like __wakeup would do
+        $checkModel = TestModel::find($model->getKey());
+        $client = m::mock('GuzzleHttp\\Client');
+
+        $client->shouldReceive('post')
+            ->once()
+            ->with('http://foo.bar/hook', ['body' => 'TestTransformer called - '. $checkModel->name. ' - '. $checkModel->id, 'verify' => false, 'timeout' => 10, 'exceptions' => false]);
+
+        $provider->setClient($client);
+        $this->app->instance(GuzzleHttp\Client::class, $client);
+
+        // Trigger eloquent event
+        \Event::fire(new TestEvent($model));
+    }
+
+    public function testCanUseCallbackWithDefaultMethodAsTransformer()
+    {
+        $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
+        $provider->setListeners([
+            'TestEvent',
+        ]);
+        $provider->setWebhooks([
+            [
+                'event' => 'TestEvent',
+                'url' => 'http://foo.bar/hook',
+            ],
+        ]);
+        $this->app['config']->set('captain_hook.transformer', 'TestTransformer');
+
+
+        $model = new TestModel();
+        $model->name = 'Test';
+        $model->save();
+
+        // We need to fetch a new instance of the model - just like __wakeup would do
+        $checkModel = TestModel::find($model->getKey());
+        $client = m::mock('GuzzleHttp\\Client');
+
+        $client->shouldReceive('post')
+            ->once()
+            ->with('http://foo.bar/hook', ['body' => 'TestTransformer called - '. $checkModel->name. ' - '. $checkModel->id, 'verify' => false, 'timeout' => 10, 'exceptions' => false]);
+
+        $provider->setClient($client);
+        $this->app->instance(GuzzleHttp\Client::class, $client);
+
+        // Trigger eloquent event
+        \Event::fire(new TestEvent($model));
+    }
+
+    public function testInvalidCallbackThrowsException()
+    {
+        $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
+        $provider->setListeners([
+            'TestEvent',
+        ]);
+        $provider->setWebhooks([
+            [
+                'event' => 'TestEvent',
+                'url' => 'http://foo.bar/hook',
+            ],
+        ]);
+        $this->app['config']->set('captain_hook.transformer', 'IDontExist');
+
+        $model = new TestModel();
+        $model->name = 'Test';
+        $model->save();
+
+        $this->setExpectedException(\ReflectionException::class,'Class IDontExist does not exist');
 
         // Trigger eloquent event
         \Event::fire(new TestEvent($model));
@@ -241,12 +411,27 @@ class TestModel extends \Illuminate\Database\Eloquent\Model
     protected $fillable = ['name'];
 }
 
-class TestEvent extends \Illuminate\Support\Facades\Event
+class TestEvent
 {
     use SerializesModels;
+
+    public $testModel;
 
     public function __construct(TestModel $model)
     {
         $this->testModel = $model;
+    }
+
+    public function __toString()
+    {
+        return 'this is just a test.';
+    }
+}
+
+class TestTransformer
+{
+    public function transform($eventData, $webhook)
+    {
+        return 'TestTransformer called - '. $eventData->testModel->name. ' - '. $eventData->testModel->id;
     }
 }

@@ -7,6 +7,7 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Bus\SelfHandling;
+use Illuminate\Support\Str;
 use Mpociot\CaptainHook\WebhookLog;
 use Illuminate\Queue\SerializesModels;
 use Psr\Http\Message\RequestInterface;
@@ -45,6 +46,23 @@ class TriggerWebhooksJob implements SelfHandling, ShouldQueue
     }
 
     /**
+     * Resolves
+     * @param string|callable $transformer
+     * @return callable
+     */
+    private function resolveTransformer($transformer)
+    {
+        if (is_string($transformer)) {
+            return function() use($transformer) {
+                list($class, $method) = Str::parseCallback($transformer,'transform');
+                return call_user_func_array([app($class), $method], func_get_args());
+            };
+        } elseif (is_callable($transformer)) {
+            return $transformer;
+        }
+    }
+
+    /**
      * Execute the job.
      *
      * @return void
@@ -55,8 +73,10 @@ class TriggerWebhooksJob implements SelfHandling, ShouldQueue
         $client = app(Client::class);
 
         $logging = $config->get('captain_hook.log.active');
+        $transformer = $this->resolveTransformer($config->get('captain_hook.transformer'));
 
         foreach ($this->webhooks as $webhook) {
+
             if ($logging) {
                 if ($config->get('captain_hook.log.storage_quantity') != -1 &&
                     $webhook->logs()->count() >= $config->get('captain_hook.log.storage_quantity')) {
@@ -86,14 +106,14 @@ class TriggerWebhooksJob implements SelfHandling, ShouldQueue
 
                 $client->post($webhook[ 'url' ], [
                     'exceptions' => false,
-                    'body' => $this->eventData,
+                    'body' => $transformer($this->eventData, $webhook),
                     'verify' => false,
                     'handler' => $middleware($client->getConfig('handler')),
                 ]);
             } else {
                 $client->post($webhook[ 'url' ], [
                     'exceptions' => false,
-                    'body' => $this->eventData,
+                    'body' => $transformer($this->eventData, $webhook),
                     'verify' => false,
                     'timeout' => 10,
                 ]);

@@ -42,8 +42,13 @@ return [
     | The data transformer is a simple function that allows you to take the
     | subject data of an event and convert it to a format that will then
     | be posted to the webhooks. By default, all data is json encoded.
+    | The second argument is the Webhook that was triggered in case
+    | you want to transform the data in different ways per hook.
+    |
+    | You can also use the 'Foo\Class@transform' notation if you want.
+    |
     */
-    'transformer' => function ($eventData) {
+    'transformer' => function ($eventData, $webhook) {
         return json_encode($eventData);
     },
 
