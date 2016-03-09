@@ -6,7 +6,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Bus\Queueable;
-use GuzzleHttp\Promise\Promise;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Mpociot\CaptainHook\WebhookLog;
 use Illuminate\Queue\SerializesModels;
