@@ -267,8 +267,6 @@ class LogTest extends Orchestra\Testbench\TestCase
         ]);
     }
 
-
-
     public function testResponseCallbackReceivesWebhookAndResponse()
     {
         $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
@@ -283,7 +281,7 @@ class LogTest extends Orchestra\Testbench\TestCase
         $handler = new \GuzzleHttp\Handler\MockHandler([
             new \GuzzleHttp\Psr7\Response(200, [
                 'Content-Type' => 'application/json',
-            ], '{"data":"First data"}')
+            ], '{"data":"First data"}'),
         ]);
 
         $mock = \Mockery::mock('stdClass');
@@ -291,10 +289,10 @@ class LogTest extends Orchestra\Testbench\TestCase
             ->once()
             ->withArgs([
                 $checkWebhook->toArray(),
-                Mockery::type('Psr\Http\Message\ResponseInterface')
+                Mockery::type('Psr\Http\Message\ResponseInterface'),
             ]);
 
-        $this->app['config']->set('captain_hook.response_callback', (function($webhook, $response) use ($mock){
+        $this->app['config']->set('captain_hook.response_callback', (function ($webhook, $response) use ($mock) {
             return $mock->callback($webhook->toArray(), $response);
         }));
 
@@ -310,8 +308,6 @@ class LogTest extends Orchestra\Testbench\TestCase
         $test->name = 'Test';
         $test->save();
     }
-
-
 }
 
 class LogTestModel extends \Illuminate\Database\Eloquent\Model

@@ -52,7 +52,6 @@ return [
         return json_encode($eventData);
     },
 
-
     /*
     |--------------------------------------------------------------------------
     | Webhook response callback
