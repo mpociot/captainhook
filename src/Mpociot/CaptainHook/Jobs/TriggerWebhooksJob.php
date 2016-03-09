@@ -46,15 +46,16 @@ class TriggerWebhooksJob implements SelfHandling, ShouldQueue
     }
 
     /**
-     * Resolves
+     * Resolves.
      * @param string|callable $transformer
      * @return callable
      */
     private function resolveTransformer($transformer)
     {
         if (is_string($transformer)) {
-            return function() use($transformer) {
-                list($class, $method) = Str::parseCallback($transformer,'transform');
+            return function () use ($transformer) {
+                list($class, $method) = Str::parseCallback($transformer, 'transform');
+
                 return call_user_func_array([app($class), $method], func_get_args());
             };
         } elseif (is_callable($transformer)) {
@@ -76,7 +77,6 @@ class TriggerWebhooksJob implements SelfHandling, ShouldQueue
         $transformer = $this->resolveTransformer($config->get('captain_hook.transformer'));
 
         foreach ($this->webhooks as $webhook) {
-
             if ($logging) {
                 if ($config->get('captain_hook.log.storage_quantity') != -1 &&
                     $webhook->logs()->count() >= $config->get('captain_hook.log.storage_quantity')) {

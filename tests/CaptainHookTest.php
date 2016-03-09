@@ -130,8 +130,6 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
         \Event::fire(new TestEvent($model));
     }
 
-
-
     public function testUsesCustomTransformMethod()
     {
         $provider = $this->app->getProvider('Mpociot\\CaptainHook\\CaptainHookServiceProvider');
@@ -147,7 +145,6 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
         $this->app['config']->set('captain_hook.transformer', function ($eventData) {
             return $eventData->__toString();
         });
-
 
         $model = new TestModel();
         $model->name = 'Test';
@@ -185,7 +182,6 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
             return $webhook['custom_data'];
         });
 
-
         $model = new TestModel();
         $model->name = 'Test';
         $model->save();
@@ -219,7 +215,6 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
         ]);
         $this->app['config']->set('captain_hook.transformer', 'TestTransformer@transform');
 
-
         $model = new TestModel();
         $model->name = 'Test';
         $model->save();
@@ -230,7 +225,7 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
         $client->shouldReceive('post')
             ->once()
-            ->with('http://foo.bar/hook', ['body' => 'TestTransformer called - '. $checkModel->name. ' - '. $checkModel->id, 'verify' => false, 'timeout' => 10, 'exceptions' => false]);
+            ->with('http://foo.bar/hook', ['body' => 'TestTransformer called - '.$checkModel->name.' - '.$checkModel->id, 'verify' => false, 'timeout' => 10, 'exceptions' => false]);
 
         $provider->setClient($client);
         $this->app->instance(GuzzleHttp\Client::class, $client);
@@ -253,7 +248,6 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
         ]);
         $this->app['config']->set('captain_hook.transformer', 'TestTransformer');
 
-
         $model = new TestModel();
         $model->name = 'Test';
         $model->save();
@@ -264,7 +258,7 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
 
         $client->shouldReceive('post')
             ->once()
-            ->with('http://foo.bar/hook', ['body' => 'TestTransformer called - '. $checkModel->name. ' - '. $checkModel->id, 'verify' => false, 'timeout' => 10, 'exceptions' => false]);
+            ->with('http://foo.bar/hook', ['body' => 'TestTransformer called - '.$checkModel->name.' - '.$checkModel->id, 'verify' => false, 'timeout' => 10, 'exceptions' => false]);
 
         $provider->setClient($client);
         $this->app->instance(GuzzleHttp\Client::class, $client);
@@ -291,7 +285,7 @@ class CaptainHookTest extends Orchestra\Testbench\TestCase
         $model->name = 'Test';
         $model->save();
 
-        $this->setExpectedException(\ReflectionException::class,'Class IDontExist does not exist');
+        $this->setExpectedException(\ReflectionException::class, 'Class IDontExist does not exist');
 
         // Trigger eloquent event
         \Event::fire(new TestEvent($model));
@@ -432,6 +426,6 @@ class TestTransformer
 {
     public function transform($eventData, $webhook)
     {
-        return 'TestTransformer called - '. $eventData->testModel->name. ' - '. $eventData->testModel->id;
+        return 'TestTransformer called - '.$eventData->testModel->name.' - '.$eventData->testModel->id;
     }
 }
