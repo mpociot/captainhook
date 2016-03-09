@@ -4,6 +4,7 @@ namespace Mpociot\CaptainHook\Jobs;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Middleware;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Bus\Queueable;
 use GuzzleHttp\Promise\Promise;
 use Illuminate\Contracts\Bus\SelfHandling;
@@ -69,7 +70,7 @@ class TriggerWebhooksJob implements SelfHandling, ShouldQueue
                 $middleware = Middleware::tap(function (RequestInterface $request, $options) use ($log) {
                     $log->payload_format = isset($request->getHeader('Content-Type')[0]) ? $request->getHeader('Content-Type')[0] : null;
                     $log->payload = $request->getBody()->getContents();
-                }, function ($request, $options, Promise $response) use ($log) {
+                }, function ($request, $options, PromiseInterface $response) use ($log) {
                     $response->then(function (ResponseInterface $response) use ($log) {
                         $log->status = $response->getStatusCode();
                         $log->response = $response->getBody()->getContents();
