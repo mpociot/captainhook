@@ -31,7 +31,7 @@ Webhook::create([
 - [Installation](#installation)
 - [Implementation](#implementation)
 - [Usage](#usage)
-    - [Spark support](spark.md)
+    - [Spark support](#spark)
     - [Custom event listeners](#listeners)
     - [Add new webhooks](#add)
     - [Delete existing webhooks](#delete)
@@ -117,6 +117,11 @@ php artisan hook:delete 2
 To list all existing webhooks, use the `hook:list` command.
 
 It will output all configured webhooks in a table.
+
+<a name="spark" />
+### Spark
+
+Install this package like thated in the [Installation section](#installation), then follow the [Spark installation instructions](spark.md).
 
 <a name="listeners" />
 ### Custom event listeners
