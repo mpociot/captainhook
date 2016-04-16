@@ -18,7 +18,7 @@ return [
     | respond to eloquent events, but you may edit this as you like.
     */
     'listeners' => [
-        'Eloquent' => 'eloquent.*'
+        'Eloquent' => 'eloquent.*',
     ],
 
     /*
