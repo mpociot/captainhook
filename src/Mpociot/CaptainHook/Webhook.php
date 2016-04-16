@@ -61,6 +61,6 @@ class Webhook extends Eloquent
      */
     public function lastLog()
     {
-        return $this->hasOne(WebhookLog::class)->orderBy('created_at','DESC');
+        return $this->hasOne(WebhookLog::class)->orderBy('created_at', 'DESC');
     }
 }

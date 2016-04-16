@@ -7,7 +7,6 @@ use Laravel\Spark\Http\Controllers\Controller;
 
 class WebhookEventsController extends Controller
 {
-
     /**
      * Create a new controller instance.
      *
@@ -28,7 +27,7 @@ class WebhookEventsController extends Controller
         return collect(config('captain_hook.listeners', []))->transform(function ($key, $value) {
             return [
                 'name' => $value,
-                'event' => $key
+                'event' => $key,
             ];
         })->values();
     }

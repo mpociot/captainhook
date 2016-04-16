@@ -15,7 +15,7 @@ class UpdateWebhookRequest extends FormRequest
     {
         return true;
     }
-    
+
     /**
      * @return array
      */
@@ -23,7 +23,7 @@ class UpdateWebhookRequest extends FormRequest
     {
         return [
             'url' => 'required|url',
-            'event' => 'required'
+            'event' => 'required',
         ];
     }
 }

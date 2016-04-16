@@ -112,7 +112,7 @@ class CaptainHookServiceProvider extends ServiceProvider
 
         $this->publishes([
             __DIR__.'/../../resources/assets/js/' => base_path('resources/assets/js/components/'),
-            __DIR__ . '/../../resources/views/' => base_path('resources/views/vendor/captainhook/settings/'),
+            __DIR__.'/../../resources/views/' => base_path('resources/views/vendor/captainhook/settings/'),
         ], 'spark-resources');
     }
 
@@ -122,7 +122,7 @@ class CaptainHookServiceProvider extends ServiceProvider
     protected function registerEventListeners()
     {
         foreach ($this->listeners as $eventName) {
-            $this->app[ 'events' ]->listen($eventName, [$this, 'handleEvent']);
+            $this->app['events']->listen($eventName, [$this, 'handleEvent']);
         }
     }
 
@@ -214,15 +214,15 @@ class CaptainHookServiceProvider extends ServiceProvider
      */
     protected function registerCommands()
     {
-        $this->app[ 'hook.list' ] = $this->app->share(function () {
+        $this->app['hook.list'] = $this->app->share(function () {
             return new ListWebhooks();
         });
 
-        $this->app[ 'hook.add' ] = $this->app->share(function () {
+        $this->app['hook.add'] = $this->app->share(function () {
             return new AddWebhook();
         });
 
-        $this->app[ 'hook.delete' ] = $this->app->share(function () {
+        $this->app['hook.delete'] = $this->app->share(function () {
             return new DeleteWebhook();
         });
 
@@ -232,13 +232,14 @@ class CaptainHookServiceProvider extends ServiceProvider
             'hook.delete'
         );
     }
+
     /**
-     * Register predefined routes used for Spark
+     * Register predefined routes used for Spark.
      */
     protected function registerRoutes()
     {
         if (class_exists('Laravel\Spark\Providers\AppServiceProvider')) {
-            include __DIR__ . '/../../routes.php';
+            include __DIR__.'/../../routes.php';
         }
     }
 }

@@ -10,7 +10,6 @@ use Mpociot\CaptainHook\Webhook;
 
 class WebhookController extends Controller
 {
-
     /**
      * Create a new controller instance.
      *
@@ -46,7 +45,7 @@ class WebhookController extends Controller
         $hook = Webhook::create([
             'url' => $request->url,
             'tenant_id' => $request->user()->getKey(),
-            'event' => $request->event
+            'event' => $request->event,
         ]);
 
         return response()->json($hook);

@@ -87,8 +87,8 @@ class TriggerWebhooksJob implements SelfHandling, ShouldQueue
                     $webhook->logs()->orderBy('updated_at', 'desc')->first()->delete();
                 }
                 $log = new WebhookLog([
-                    'webhook_id' => $webhook[ 'id' ],
-                    'url' => $webhook[ 'url' ],
+                    'webhook_id' => $webhook['id'],
+                    'url' => $webhook['url'],
                 ]);
                 $middleware = Middleware::tap(function (RequestInterface $request, $options) use ($log) {
                     $log->payload_format = isset($request->getHeader('Content-Type')[0]) ? $request->getHeader('Content-Type')[0] : null;
@@ -110,14 +110,14 @@ class TriggerWebhooksJob implements SelfHandling, ShouldQueue
                     });
                 });
 
-                $client->post($webhook[ 'url' ], [
+                $client->post($webhook['url'], [
                     'exceptions' => false,
                     'body' => $transformer($this->eventData, $webhook),
                     'verify' => false,
                     'handler' => $middleware($client->getConfig('handler')),
                 ]);
             } else {
-                $client->post($webhook[ 'url' ], [
+                $client->post($webhook['url'], [
                     'exceptions' => false,
                     'body' => $transformer($this->eventData, $webhook),
                     'verify' => false,
