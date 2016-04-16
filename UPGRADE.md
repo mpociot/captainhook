@@ -1,3 +1,8 @@
+# Upgrade Captain Hook from version 2.* to 3.*
+
+## Breaking changes
+- The `listeners` property in the configuration file is now an associative array. The key can be used to display a meaningful event name (which will also be used for Spark).
+
 # Upgrade Captain Hook from version 1.* to 2.*
 
 ## Breaking changes

@@ -53,4 +53,14 @@ class Webhook extends Eloquent
     {
         return $this->hasMany(WebhookLog::class);
     }
+
+    /**
+     * Retrieve the logs for a given hook.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function lastLog()
+    {
+        return $this->hasOne(WebhookLog::class)->orderBy('created_at','DESC');
+    }
 }

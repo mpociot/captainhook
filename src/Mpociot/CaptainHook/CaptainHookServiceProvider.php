@@ -59,8 +59,10 @@ class CaptainHookServiceProvider extends ServiceProvider
         $this->config = app('Illuminate\Contracts\Config\Repository');
         $this->publishMigration();
         $this->publishConfig();
-        $this->listeners = $this->config->get('captain_hook.listeners', []);
+        $this->publishSparkResources();
+        $this->listeners = collect($this->config->get('captain_hook.listeners', []))->values();
         $this->registerEventListeners();
+        $this->registerRoutes();
     }
 
     /**
@@ -79,8 +81,8 @@ class CaptainHookServiceProvider extends ServiceProvider
     protected function publishMigration()
     {
         $migrations = [
-            __DIR__.'/../../database/2015_10_29_000000_captain_hook_setup_table.php' => database_path('/migrations/'.date('Y_m_d_His').'_captain_hook_setup_table.php'),
-            __DIR__.'/../../database/2015_10_29_000001_captain_hook_setup_logs_table.php' => database_path('/migrations/'.date('Y_m_d_His', strtotime('+1s')).'_captain_hook_setup_logs_table.php'),
+            __DIR__.'/../../database/2015_10_29_000000_captain_hook_setup_table.php' => database_path('/migrations/'.date('Y_m_d').'_000000_captain_hook_setup_table.php'),
+            __DIR__.'/../../database/2015_10_29_000001_captain_hook_setup_logs_table.php' => database_path('/migrations/'.date('Y_m_d').'_000001_captain_hook_setup_logs_table.php'),
         ];
 
         foreach ($migrations as $migration => $toPath) {
@@ -102,6 +104,16 @@ class CaptainHookServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../../config/config.php' => config_path('captain_hook.php'),
         ]);
+    }
+
+    protected function publishSparkResources()
+    {
+        $this->loadViewsFrom(__DIR__.'/../../resources/views/', 'captainhook');
+
+        $this->publishes([
+            __DIR__.'/../../resources/assets/js/' => base_path('resources/assets/js/components/'),
+            __DIR__ . '/../../resources/views/' => base_path('resources/views/vendor/captainhook/settings/'),
+        ], 'spark-resources');
     }
 
     /**
@@ -219,5 +231,14 @@ class CaptainHookServiceProvider extends ServiceProvider
             'hook.add',
             'hook.delete'
         );
+    }
+    /**
+     * Register predefined routes used for Spark
+     */
+    protected function registerRoutes()
+    {
+        if (class_exists('Laravel\Spark\Providers\AppServiceProvider')) {
+            include __DIR__ . '/../../routes.php';
+        }
     }
 }

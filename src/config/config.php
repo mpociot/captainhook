@@ -17,7 +17,9 @@ return [
     | listen for in the application. By default, the Captain will just
     | respond to eloquent events, but you may edit this as you like.
     */
-    'listeners' => ['eloquent.*'],
+    'listeners' => [
+        'Eloquent' => 'eloquent.*'
+    ],
 
     /*
     |--------------------------------------------------------------------------

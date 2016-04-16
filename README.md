@@ -31,6 +31,7 @@ Webhook::create([
 - [Installation](#installation)
 - [Implementation](#implementation)
 - [Usage](#usage)
+    - [Spark support](spark.md)
     - [Custom event listeners](#listeners)
     - [Add new webhooks](#add)
     - [Delete existing webhooks](#delete)
@@ -119,8 +120,6 @@ It will output all configured webhooks in a table.
 
 <a name="listeners" />
 ### Custom event listeners
-
-If you want CaptainHook to listen for custom events, you need to override the `CaptainHookServiceProvider`.
 
 All listeners are defined in the config file located at `config/captain_hook.php`.
 
