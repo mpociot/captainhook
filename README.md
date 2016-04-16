@@ -121,7 +121,7 @@ It will output all configured webhooks in a table.
 <a name="spark" />
 ### Spark
 
-Install this package like thated in the [Installation section](#installation), then follow the [Spark installation instructions](spark.md).
+Install this package like stated in the [Installation section](#installation), then follow the [Spark installation instructions](spark.md).
 
 <a name="listeners" />
 ### Custom event listeners
