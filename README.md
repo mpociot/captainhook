@@ -11,6 +11,12 @@
 
 Implement multiple webhooks into your Laravel app using the Laravel Event system.
 
+```
+A webhook is a method of altering the behavior of a web application, with custom callbacks.
+These callbacks may be managed by third-party users and developers who may not necessarily
+be affiliated with the originating application.
+```
+
 ## Examples
 
 ```bash
