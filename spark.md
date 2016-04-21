@@ -27,7 +27,7 @@ Place a link to the webhooks settings tab:
 ```html
 <!-- Webhooks Link -->
 <li role="presentation">
-    <a href="#webhooks" aria-controls="api" role="tab" data-toggle="tab">
+    <a href="#webhooks" aria-controls="webhooks" role="tab" data-toggle="tab">
         <i class="fa fa-fw fa-btn fa-code"></i>Webhooks
     </a>
 </li>
