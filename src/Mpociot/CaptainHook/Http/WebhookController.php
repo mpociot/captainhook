@@ -27,7 +27,9 @@ class WebhookController extends Controller
      */
     public function all(Request $request)
     {
-        return Webhook::where('tenant_id', $request->user()->getKey())
+        $tenant_id = (config('captain_hook.tenant_spark_model', 'User') == 'Team' && isset($request->user()->currentTeam)) ? $request->user()->currentTeam->id : $request->user()->getKey();
+
+        return Webhook::where('tenant_id', $tenant_id)
             ->with('lastLog')
             ->with('logs')
             ->orderBy('created_at', 'desc')
@@ -44,7 +46,7 @@ class WebhookController extends Controller
     {
         $hook = Webhook::create([
             'url' => $request->url,
-            'tenant_id' => $request->user()->getKey(),
+            'tenant_id' => $this->getTenantId($request),
             'event' => $request->event,
         ]);
 
@@ -60,7 +62,7 @@ class WebhookController extends Controller
      */
     public function update(UpdateWebhookRequest $request, $webhookId)
     {
-        $webhook = Webhook::where('tenant_id', $request->user()->getKey())
+        $webhook = Webhook::where('tenant_id', $this->getTenantId($request))
             ->where('id', $webhookId)
             ->firstOrFail();
 
@@ -78,9 +80,14 @@ class WebhookController extends Controller
      */
     public function destroy(Request $request, $webhookId)
     {
-        Webhook::where('tenant_id', $request->user()->getKey())
+        Webhook::where('tenant_id', $this->getTenantId($request))
             ->where('id', $webhookId)
             ->firstOrFail()
             ->delete();
+    }
+
+
+    protected function getTenantId(Request $request){
+        return (config('captain_hook.tenant_spark_model', 'User') == 'Team' && isset($request->user()->currentTeam)) ? $request->user()->currentTeam->id : $request->user()->getKey();
     }
 }
