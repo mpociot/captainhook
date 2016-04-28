@@ -82,4 +82,18 @@ return [
         'active' => true,
         'storage_quantity' => 50,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | API configuration
+    |--------------------------------------------------------------------------
+    |
+    | By enabling this option some extra routes will be added under
+    | the /api prefix and with the 'auth:api' middleware, to allow users and
+    | services like Zapier to create, update and delete Webhooks without user
+    | interaction.
+    | See more at http://resthooks.org/
+    |
+    */
+    'uses_api' => true,
 ];
