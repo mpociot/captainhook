@@ -83,8 +83,7 @@ class WebhookController extends Controller
             ->firstOrFail()
             ->delete();
     }
-
-
+    
     protected function getTenantId(Request $request)
     {
         return (config('captain_hook.tenant_spark_model', 'User') == 'Team' && isset($request->user()->currentTeam)) ? $request->user()->currentTeam->id : $request->user()->getKey();
