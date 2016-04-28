@@ -27,9 +27,7 @@ class WebhookController extends Controller
      */
     public function all(Request $request)
     {
-        $tenant_id = (config('captain_hook.tenant_spark_model', 'User') == 'Team' && isset($request->user()->currentTeam)) ? $request->user()->currentTeam->id : $request->user()->getKey();
-
-        return Webhook::where('tenant_id', $tenant_id)
+        return Webhook::where('tenant_id', $this->getTenantId($request))
             ->with('lastLog')
             ->with('logs')
             ->orderBy('created_at', 'desc')
@@ -87,7 +85,8 @@ class WebhookController extends Controller
     }
 
 
-    protected function getTenantId(Request $request){
+    protected function getTenantId(Request $request)
+    {
         return (config('captain_hook.tenant_spark_model', 'User') == 'Team' && isset($request->user()->currentTeam)) ? $request->user()->currentTeam->id : $request->user()->getKey();
     }
 }
