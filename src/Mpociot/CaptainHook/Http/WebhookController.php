@@ -17,7 +17,6 @@ class WebhookController extends Controller
      */
     public function __construct()
     {
-
     }
 
     /**
