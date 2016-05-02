@@ -82,4 +82,22 @@ return [
         'active' => true,
         'storage_quantity' => 50,
     ],
+
+    /*
+   |--------------------------------------------------------------------------
+   | Tenant configuration
+   |--------------------------------------------------------------------------
+   |
+   | The tenant model option allows you to associate the tenant_id
+   | to the Spark Team instead of the User like by default.
+   |
+   | Possible options are: 'User' or 'Team'
+   |
+   | If you use 'User' you should add the following to the 'filter' function:
+   | return $webhook->tenant_id == auth()->user()->getKey();
+   |
+   | If you use 'Team' you should add the following to the 'filter' function:
+   | return $webhook->tenant_id == auth()->user()->currentTeam->id;
+   */
+    'tenant_spark_model' => 'Team',
 ];
