@@ -85,7 +85,7 @@ return [
 
     /*
    |--------------------------------------------------------------------------
-   | Tenant configuration
+   | Tenant configuration (Spark specific configuration)
    |--------------------------------------------------------------------------
    |
    | The tenant model option allows you to associate the tenant_id
