@@ -84,20 +84,34 @@ return [
     ],
 
     /*
-   |--------------------------------------------------------------------------
-   | Tenant configuration (Spark specific configuration)
-   |--------------------------------------------------------------------------
-   |
-   | The tenant model option allows you to associate the tenant_id
-   | to the Spark Team instead of the User like by default.
-   |
-   | Possible options are: 'User' or 'Team'
-   |
-   | If you use 'User' you should add the following to the 'filter' function:
-   | return $webhook->tenant_id == auth()->user()->getKey();
-   |
-   | If you use 'Team' you should add the following to the 'filter' function:
-   | return $webhook->tenant_id == auth()->user()->currentTeam->id;
-   */
+    |--------------------------------------------------------------------------
+    | Tenant configuration (Spark specific configuration)
+    |--------------------------------------------------------------------------
+    |
+    | The tenant model option allows you to associate the tenant_id
+    | to the Spark Team instead of the User like by default.
+    |
+    | Possible options are: 'User' or 'Team'
+    |
+    | If you use 'User' you should add the following to the 'filter' function:
+    | return $webhook->tenant_id == auth()->user()->getKey();
+    |
+    | If you use 'Team' you should add the following to the 'filter' function:
+    | return $webhook->tenant_id == auth()->user()->currentTeam->id;
+    */
     'tenant_spark_model' => 'Team',
+
+    /*
+    |--------------------------------------------------------------------------
+    | API configuration (Spark specific configuration)
+    |--------------------------------------------------------------------------
+    |
+    | By enabling this option some extra routes will be added under
+    | the /api prefix and with the 'auth:api' middleware, to allow users and
+    | services like Zapier to create, update and delete Webhooks without user
+    | interaction.
+    | See more at http://resthooks.org/
+    |
+    */
+    'uses_api' => true,
 ];
