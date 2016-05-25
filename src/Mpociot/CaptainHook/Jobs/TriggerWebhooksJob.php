@@ -76,6 +76,10 @@ class TriggerWebhooksJob implements SelfHandling, ShouldQueue
         $config = app('Illuminate\Contracts\Config\Repository');
         $client = app(Client::class);
 
+        if ($config->get('captain_hook.log.max_attempts', -1) !== -1 && $this->attempts() > $config->get('captain_hook.log.max_attempts')) {
+            return;
+        }
+
         $logging = $config->get('captain_hook.log.active');
         $transformer = $this->resolveCallable($config->get('captain_hook.transformer'), 'transform');
         $responseCallback = $this->resolveCallable($config->get('captain_hook.response_callback'), 'handle');
@@ -84,7 +88,7 @@ class TriggerWebhooksJob implements SelfHandling, ShouldQueue
             if ($logging) {
                 if ($config->get('captain_hook.log.storage_quantity') != -1 &&
                     $webhook->logs()->count() >= $config->get('captain_hook.log.storage_quantity')) {
-                    $webhook->logs()->orderBy('updated_at', 'desc')->first()->delete();
+                    $webhook->logs()->orderBy('updated_at', 'asc')->first()->delete();
                 }
                 $log = new WebhookLog([
                     'webhook_id' => $webhook['id'],
@@ -102,7 +106,7 @@ class TriggerWebhooksJob implements SelfHandling, ShouldQueue
                         $log->save();
 
                         // Retry this job if the webhook response didn't give us a HTTP 200 OK
-                        if ($response->getStatusCode() != 200) {
+                        if ($response->getStatusCode() >= 300 || $response->getStatusCode() < 200 ) {
                             $this->release(30);
                         }
 

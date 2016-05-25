@@ -81,6 +81,7 @@ return [
     'log' => [
         'active' => true,
         'storage_quantity' => 50,
+        'max_attempts' => 5,
     ],
 
     /*
