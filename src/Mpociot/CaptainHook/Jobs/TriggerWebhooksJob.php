@@ -106,7 +106,7 @@ class TriggerWebhooksJob implements SelfHandling, ShouldQueue
                         $log->save();
 
                         // Retry this job if the webhook response didn't give us a HTTP 200 OK
-                        if ($response->getStatusCode() >= 300 || $response->getStatusCode() < 200 ) {
+                        if ($response->getStatusCode() >= 300 || $response->getStatusCode() < 200) {
                             $this->release(30);
                         }
 
