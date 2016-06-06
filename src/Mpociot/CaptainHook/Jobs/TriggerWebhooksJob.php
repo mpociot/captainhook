@@ -63,7 +63,8 @@ class TriggerWebhooksJob implements SelfHandling, ShouldQueue
             return $transformer;
         }
 
-        return function () {};
+        return function () {
+        };
     }
 
     /**
