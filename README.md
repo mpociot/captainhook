@@ -54,7 +54,7 @@ In order to add CaptainHook to your project, just add
 
     "mpociot/captainhook": "~2.0"
 
-to your composer.json. Then run `composer install` or `composer update`.
+to your `composer.json`'s `require` block. Then run `composer install` or `composer update`.
 
 Or run `composer require mpociot/captainhook ` if you prefer that.
 
@@ -76,7 +76,7 @@ php artisan migrate
 <a name="usage" />
 ## Usage
 
-The CaptainHook service provider listens for every `eloquent.*` events.
+The CaptainHook service provider listens for any `eloquent.*` events.
 
 If the package finds a configured webhook for an event, it will make a `POST` request to the specified URL.
 
@@ -84,9 +84,9 @@ Webhook data is sent as JSON in the POST request body. The full event object is 
 
 **Example**
 
-Let's say you want to have a webhook that get's called every time your User model get's updated.
+Let's say you want to have a webhook that gets called every time your User model gets updated.
 
-The event that get's called from Laravel will be:
+The event that gets called from Laravel will be:
 
 `eloquent.updated \App\User`
 
@@ -106,7 +106,7 @@ This command takes two arguments:
 php artisan hook:add http://www.myapp.com/hook/ 'eloquent.saved \App\User'
 ```
 
-You can also add multiple webhooks for the same event, as all configured webhooks will get calles asynchronous.
+You can also add multiple webhooks for the same event, as all configured webhooks will get called asynchronously.
 
 <a name="delete" />
 ### Delete existing webhooks
@@ -152,7 +152,7 @@ $event_json = json_decode($input);
 
 Starting with version 2.0, this package allows you to log the payload and response of the triggered webhooks.
 
-> **NOTE:** A non-blocking queue driver (not `sync`) is highliy recommended. Otherwise your application will need to wait for the webhook execution.
+> **NOTE:** A non-blocking queue driver (not `sync`) is highly recommended. Otherwise your application will need to wait for the webhook execution.
 
 You can configure how many logs will be saved **per webhook** (Default 50).
 
@@ -178,7 +178,7 @@ Webhook::create([
 ]);
 ```
 
-Now when you fire this event - you want to call the webhook only for the currently logged in user.
+Now when you fire this event, you want to call the webhook only for the currently logged in user.
 
 In order to filter the webhooks, modify the `filter` configuration value in the `config/captain_hook.php` file.
 This filter is a Laravel collection filter.
