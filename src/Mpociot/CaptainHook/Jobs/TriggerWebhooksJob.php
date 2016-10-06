@@ -6,7 +6,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Support\Str;
 use Mpociot\CaptainHook\WebhookLog;
 use Illuminate\Queue\SerializesModels;
@@ -15,7 +14,7 @@ use Psr\Http\Message\ResponseInterface;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class TriggerWebhooksJob implements SelfHandling, ShouldQueue
+class TriggerWebhooksJob implements ShouldQueue
 {
     use Queueable, InteractsWithQueue, SerializesModels;
 
