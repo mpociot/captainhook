@@ -158,14 +158,12 @@ class CaptainHookServiceProvider extends ServiceProvider
     {
         // Check if migration ran
         if (Schema::hasTable((new Webhook)->getTable())) {
-            if (!$this->getCache()->has(Webhook::CACHE_KEY)) {
-                $this->getCache()->rememberForever(Webhook::CACHE_KEY, function () {
-                    return Webhook::all();
-                });
-            }
+            return collect($this->getCache()->rememberForever(Webhook::CACHE_KEY, function () {
+                return Webhook::all();
+            }));
         }
 
-        return collect($this->getCache()->get(Webhook::CACHE_KEY));
+        return collect();
     }
 
     /**
