@@ -21,7 +21,7 @@ be affiliated with the originating application.
 
 ```bash
 php artisan hook:add http://www.myapp.com/hooks/ '\App\Events\PodcastWasPurchased'
-php artisan hook:add http://www.myapp.com/hooks/ 'eloquent.saved \App\User'
+php artisan hook:add http://www.myapp.com/hooks/ 'eloquent.saved: \App\User'
 ```
 
 ```php
@@ -88,7 +88,7 @@ Let's say you want to have a webhook that gets called every time your User model
 
 The event that gets called from Laravel will be:
 
-`eloquent.updated \App\User`
+`eloquent.updated: \App\User`
 
 So this will be the event you want to listen for.
 
@@ -103,7 +103,7 @@ This command takes two arguments:
 - The event name. This could either be one of the `eloquent.*` events, or one of your custom events.
 
 ```bash
-php artisan hook:add http://www.myapp.com/hook/ 'eloquent.saved \App\User'
+php artisan hook:add http://www.myapp.com/hook/ 'eloquent.saved: \App\User'
 ```
 
 You can also add multiple webhooks for the same event, as all configured webhooks will get called asynchronously.
