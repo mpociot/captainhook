@@ -5,6 +5,7 @@ namespace Mpociot\CaptainHook;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Mpociot\CaptainHook\Commands\AddWebhook;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -81,10 +82,13 @@ class CaptainHookServiceProvider extends ServiceProvider
     protected function publishMigration()
     {
         $migrations = [
-            __DIR__.'/../../database/2015_10_29_000000_captain_hook_setup_table.php' => database_path('/migrations/'.date('Y_m_d').'_000000_captain_hook_setup_table.php'),
-            __DIR__.'/../../database/2015_10_29_000001_captain_hook_setup_logs_table.php' => database_path('/migrations/'.date('Y_m_d').'_000001_captain_hook_setup_logs_table.php'),
+            __DIR__.'/../../database/2015_10_29_000000_captain_hook_setup_table.php' =>
+                database_path('/migrations/2015_10_29_000000_captain_hook_setup_table.php'),
+            __DIR__.'/../../database/2015_10_29_000001_captain_hook_setup_logs_table.php' =>
+                database_path('/migrations/2015_10_29_000001_captain_hook_setup_logs_table.php'),
         ];
 
+        // To be backwards compatible
         foreach ($migrations as $migration => $toPath) {
             preg_match('/_captain_hook_.*\.php/', $migration, $match);
             $published_migration = glob(database_path('/migrations/*'.$match[0]));
@@ -152,13 +156,14 @@ class CaptainHookServiceProvider extends ServiceProvider
      */
     public function getWebhooks()
     {
-        if (! $this->getCache()->has(Webhook::CACHE_KEY)) {
-            $this->getCache()->rememberForever(Webhook::CACHE_KEY, function () {
+        // Check if migration ran
+        if (Schema::hasTable((new Webhook)->getTable())) {
+            return collect($this->getCache()->rememberForever(Webhook::CACHE_KEY, function () {
                 return Webhook::all();
-            });
+            }));
         }
 
-        return collect($this->getCache()->get(Webhook::CACHE_KEY));
+        return collect();
     }
 
     /**
@@ -214,22 +219,10 @@ class CaptainHookServiceProvider extends ServiceProvider
      */
     protected function registerCommands()
     {
-        $this->app['hook.list'] = $this->app->share(function () {
-            return new ListWebhooks();
-        });
-
-        $this->app['hook.add'] = $this->app->share(function () {
-            return new AddWebhook();
-        });
-
-        $this->app['hook.delete'] = $this->app->share(function () {
-            return new DeleteWebhook();
-        });
-
         $this->commands(
-            'hook.list',
-            'hook.add',
-            'hook.delete'
+            ListWebhooks::class,
+            AddWebhook::class,
+            DeleteWebhook::class
         );
     }
 
