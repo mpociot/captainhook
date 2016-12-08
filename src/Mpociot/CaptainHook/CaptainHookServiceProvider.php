@@ -219,22 +219,10 @@ class CaptainHookServiceProvider extends ServiceProvider
      */
     protected function registerCommands()
     {
-        $this->app['hook.list'] = $this->app->share(function () {
-            return new ListWebhooks();
-        });
-
-        $this->app['hook.add'] = $this->app->share(function () {
-            return new AddWebhook();
-        });
-
-        $this->app['hook.delete'] = $this->app->share(function () {
-            return new DeleteWebhook();
-        });
-
         $this->commands(
-            'hook.list',
-            'hook.add',
-            'hook.delete'
+            ListWebhooks::class,
+            AddWebhook::class,
+            DeleteWebhook::class
         );
     }
 
