@@ -1,6 +1,9 @@
 <?php
 
 use Mockery as m;
+use Mpociot\CaptainHook\Commands\AddWebhook;
+use Mpociot\CaptainHook\Commands\DeleteWebhook;
+use Mpociot\CaptainHook\Webhook;
 
 class CommandsTest extends Orchestra\Testbench\TestCase
 {
@@ -16,7 +19,7 @@ class CommandsTest extends Orchestra\Testbench\TestCase
 
     public function testCannotAddWebhookWithoutName()
     {
-        $cmd = m::mock('\\Mpociot\\CaptainHook\\Commands\\AddWebhook[argument,error]');
+        $cmd = m::mock(AddWebhook::class . '[argument,error]');
 
         $cmd->shouldReceive('error')
             ->once()
@@ -36,7 +39,7 @@ class CommandsTest extends Orchestra\Testbench\TestCase
 
     public function testCanAddWebhook()
     {
-        $cmd = m::mock('\\Mpociot\\CaptainHook\\Commands\\AddWebhook[argument,info]');
+        $cmd = m::mock(AddWebhook::class . '[argument,info]');
 
         $cmd->shouldReceive('argument')
             ->with('url')
@@ -59,11 +62,11 @@ class CommandsTest extends Orchestra\Testbench\TestCase
 
     public function testCannotDeleteWebhookWithWrongID()
     {
-        $webhook = \Mpociot\CaptainHook\Webhook::create([
+        Webhook::create([
             'url' => 'http://foo.baz',
             'event' => 'DeleteWebhook',
         ]);
-        $cmd = m::mock('\\Mpociot\\CaptainHook\\Commands\\DeleteWebhook[argument,error]');
+        $cmd = m::mock(DeleteWebhook::class . '[argument,error]');
 
         $cmd->shouldReceive('argument')
             ->with('id')
@@ -82,11 +85,11 @@ class CommandsTest extends Orchestra\Testbench\TestCase
 
     public function testCanDeleteWebhook()
     {
-        $webhook = \Mpociot\CaptainHook\Webhook::create([
+        $webhook = Webhook::create([
            'url' => 'http://foo.baz',
            'event' => 'DeleteWebhook',
         ]);
-        $cmd = m::mock('\\Mpociot\\CaptainHook\\Commands\\DeleteWebhook[argument,info]');
+        $cmd = m::mock(DeleteWebhook::class . '[argument,info]');
 
         $cmd->shouldReceive('argument')
             ->with('id')
