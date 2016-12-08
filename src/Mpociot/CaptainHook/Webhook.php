@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\Model as Eloquent;
 /**
  * This file is part of CaptainHook arrrrr.
  *
+ * @property integer id
+ * @property integer tenant_id
+ * @property string  event
+ * @property string  url
  * @license MIT
  */
 class Webhook extends Eloquent
