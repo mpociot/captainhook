@@ -4,6 +4,7 @@ namespace Mpociot\CaptainHook;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -12,6 +13,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Mpociot\CaptainHook\Commands\ListWebhooks;
 use Mpociot\CaptainHook\Commands\DeleteWebhook;
 use Mpociot\CaptainHook\Jobs\TriggerWebhooksJob;
+use Illuminate\Contracts\Queue\Factory as QueueFactoryContract;
 
 /**
  * This file is part of CaptainHook arrrrr.
@@ -74,6 +76,24 @@ class CaptainHookServiceProvider extends ServiceProvider
     public function register()
     {
         $this->registerCommands();
+
+        if (Str::is('5.4.*', $this->app->version())) {
+            $this->registerEventDispatcher();
+        }
+    }
+
+    /**
+     * Register events dispatcher.
+     *
+     * @return void
+     */
+    public function registerEventDispatcher()
+    {
+        $this->app->singleton('events', function ($app) {
+            return (new EventDispatcher($app))->setQueueResolver(function () use ($app) {
+                return $app->make(QueueFactoryContract::class);
+            });
+        });
     }
 
     /**
