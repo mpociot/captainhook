@@ -126,7 +126,7 @@ class CaptainHookServiceProvider extends ServiceProvider
     protected function registerEventListeners()
     {
         foreach ($this->listeners as $eventName) {
-            $this->app['events']->listen($eventName, [$this, 'handleEvent']);
+            $this->app['events']->listen($eventName . '*', [$this, 'handleEvent']);
         }
     }
 
@@ -201,11 +201,11 @@ class CaptainHookServiceProvider extends ServiceProvider
     /**
      * Event listener.
      *
+     * @param $eventName
      * @param $eventData
      */
-    public function handleEvent($eventData)
+    public function handleEvent($eventName, $eventData)
     {
-        $eventName = Event::firing();
         $webhooks = $this->getWebhooks()->where('event', $eventName);
         $webhooks = $webhooks->filter($this->config->get('captain_hook.filter', null));
 
