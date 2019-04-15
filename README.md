@@ -1,4 +1,5 @@
 <img src="http://www.marcelpociot.com/git/hook.png" style="width: 100%" alt="Captain Hook" />
+
 # Captain Hook
 ## Add Webhooks to your Laravel app, arrr
 
@@ -48,6 +49,7 @@ Webhook::create([
 - [License](#license)
 
 <a name="installation" />
+
 ## Installation
 
 In order to add CaptainHook to your project, just add
@@ -74,6 +76,7 @@ php artisan migrate
 ```
 
 <a name="usage" />
+
 ## Usage
 
 The CaptainHook service provider listens for any `eloquent.*` events.
@@ -93,6 +96,7 @@ The event that gets called from Laravel will be:
 So this will be the event you want to listen for.
 
 <a name="add" />
+
 ### Add new webhooks
 
 If you know which event you want to listen to, you can add a new webhook by using the `hook:add` artisan command.
@@ -109,6 +113,7 @@ php artisan hook:add http://www.myapp.com/hook/ 'eloquent.saved: \App\User'
 You can also add multiple webhooks for the same event, as all configured webhooks will get called asynchronously.
 
 <a name="delete" />
+
 ### Delete existing webhooks
 
 To remove an existing webhook from the system, use the `hook:delete` command. This command takes the webhook ID as an argument.
@@ -118,6 +123,7 @@ php artisan hook:delete 2
 ```
 
 <a name="list" />
+
 ### List all active webhooks
 
 To list all existing webhooks, use the `hook:list` command.
@@ -125,16 +131,19 @@ To list all existing webhooks, use the `hook:list` command.
 It will output all configured webhooks in a table.
 
 <a name="spark" />
+
 ### Spark
 
 Install this package like stated in the [Installation section](#installation), then follow the [Spark installation instructions](spark.md).
 
 <a name="listeners" />
+
 ### Custom event listeners
 
 All listeners are defined in the config file located at `config/captain_hook.php`.
 
 <a name="webhook" />
+
 ### Receiving a webhook notification
 
 To receive the event data in your configured webhook, use:
@@ -148,6 +157,7 @@ $event_json = json_decode($input);
 ```
 
 <a name="logging" />
+
 ### Webhook logging
 
 Starting with version 2.0, this package allows you to log the payload and response of the triggered webhooks.
@@ -159,6 +169,7 @@ You can configure how many logs will be saved **per webhook** (Default 50).
 This value can be modified in the configuration file `config/captain_hook.php`.
 
 <a name="tenant" />
+
 ### Using webhooks with multi tenancy
 
 Sometimes you don't want to use system wide webhooks, but rather want them scoped to a specific "tenant".
@@ -192,6 +203,7 @@ To return only the webhooks for the currently logged in user, it might look like
 ```
 
 <a name="license" />
+
 ## License
 
 CaptainHook is free software distributed under the terms of the MIT license.
